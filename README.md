@@ -8,7 +8,7 @@ Backend API built with FastAPI following Clean Architecture + DDD.
 - **MongoDB** (Beanie / Motor)
 - **slowapi** rate limiting
 - **uv** for dependency management (Python 3.13+)
-- **pytest**, **mypy**, **import-linter**
+- **pytest**, **mypy**, **import-linter**, **ruff**
 
 ## Project structure
 
@@ -68,6 +68,8 @@ Docs at http://localhost:8000/docs. Endpoints: `GET /api/health`, `POST /api/ite
 pytest
 mypy app
 lint-imports
+ruff check app
+ruff format --check app
 ```
 
 

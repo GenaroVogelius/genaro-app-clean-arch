@@ -10,7 +10,7 @@ targets:
 
 Inside any file matching `app/domain/use_cases/**/*use_case.py`, when the use case instantiates a Pydantic `BaseModel` **only to transfer data to an outbound port** (repository, provider, service), build it with `Model.model_construct(...)`, not with `Model(...)`.
 
-**Why**: validation already happens at the input boundary (Prefect flow, HTTP controller, CLI, scheduler) that builds the *incoming* `params` passed to `execute(...)`. Internal transfer objects re-pack already-trusted, already-typed data on its way out to a port, so re-running Pydantic validators on them is wasted work.
+**Why**: validation already happens at the input boundary (HTTP controller, CLI, scheduler) that builds the *incoming* `params` passed to `execute(...)`. Internal transfer objects re-pack already-trusted, already-typed data on its way out to a port, so re-running Pydantic validators on them is wasted work.
 
 The reference implementation is `app/domain/use_cases/store/quote_use_case/insert_currency_quotes_use_case.py`.
 

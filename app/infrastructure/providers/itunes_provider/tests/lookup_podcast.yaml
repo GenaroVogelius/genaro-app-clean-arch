@@ -1,0 +1,104 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - itunes.apple.com
+      user-agent:
+      - python-httpx/0.28.1
+    method: GET
+    uri: https://itunes.apple.com/lookup?id=1200361736
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAA/81UTW/bMAy9+1cEPseRZDvKBzAMRTpsPbQolnTAVhSDYnGpVls2JKVJWvS/j7Lj
+        pO66YYcdCtiG/Eg9PlIUgyB4DHqhAbvO3axcaxdOWf+A2HDauw4ew40RVQVmsasgnIbOiOwu7PfC
+        O6Ul/lelzIR1HhHGKevOEGUx4zxN0wmiWZnnkDlV6sZCacLZKOFoqrl+QxuaC1H4cItb6F3Apve1
+        NHe9hSrAhh3OZ26nQuW7sKV9zXDcNgNtSwPyj9v/5tAI/KJgc2VyNN46V9kpIftS2AHWK4dBVhZk
+        bUnjTdwtRBo20Q4TiZxPhByq9H5dvku7Av+VfY/W9NILJEoeq3kg/gEgu3QesQOrCiTzDDXhPB/O
+        5ufJ/FCG/ywDa7HB/JExoc84lWWRtfmgeLBOOJXVrKoQK0DCdbEkl/ugcczIfUrEkvCUcI4LnnIu
+        JtFEjGQEMYVoJBIZLbPhEpKRjCcZkOJBfGdDOk7Hw3jMEjbisX+Swc9qRRK6Tehy6dddgfyNCOR0
+        y18VyOgbUYhCtvgeNR67+NKoDK8PHVDadlQXOrp+kq2l7wdQDsLCqXD+8sU05hGdRDFfMDql/vnW
+        jfNhW+UqU06DxakV6tK1yKGTX7hkGECDPN73ZvxhTqyF/LQ5V3mu0D/Fe1pHRC+zw/1X85NawtoY
+        0FmDnHqkMlh1s/sI2sB+eNSDw0+x/ezSDrQ7kfcKJ8zuM56WXqHXzCt62YNv5IhRCHbhsyNe+fTO
+        JFbmOmTDmHus+bJ0PAlvWpfaoZt/q9Kva+zm6SZ4CoLgF39O7ZSPBgAA
+    headers:
+      access-control-allow-origin:
+      - '*'
+      apple-originating-system:
+      - MZStoreServices
+      apple-seq:
+      - '0.0'
+      apple-timing-app:
+      - 12 ms
+      apple-tk:
+      - 'false'
+      b3:
+      - 4a3b071d6883a75d997e50cc446d8f9a-ddf711cd265ea695
+      cache-control:
+      - max-age=86400
+      connection:
+      - keep-alive
+      content-disposition:
+      - attachment; filename=1.txt
+      content-encoding:
+      - gzip
+      content-length:
+      - '612'
+      content-type:
+      - text/javascript; charset=utf-8
+      date:
+      - Sat, 26 Sep 2026 13:25:17 GMT
+      server:
+      - daiquiri/5
+      strict-transport-security:
+      - max-age=31536000
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Accept-Encoding
+      x-apple-application-instance:
+      - '6501026'
+      x-apple-application-site:
+      - MR22
+      x-apple-jingle-correlation-key:
+      - JI5QOHLIQOTV3GL6KDGEI3MPTI
+      x-apple-orig-url:
+      - https://itunes.apple.com/lookup?id=1200361736
+      x-apple-partner:
+      - origin.0
+      x-apple-request-uuid:
+      - 4a3b071d-6883-a75d-997e-50cc446d8f9a
+      x-apple-translated-wo-url:
+      - /WebObjects/MZStoreServices.woa/ws/wsLookup?id=1200361736&urlDesc=
+      x-b3-spanid:
+      - ddf711cd265ea695
+      x-b3-traceid:
+      - 4a3b071d6883a75d997e50cc446d8f9a
+      x-cache:
+      - TCP_REFRESH_MISS from a201-212-32-53.deploy.akamaitechnologies.com (AkamaiGHost/22.6.3-da071da6976b6d633b0b37bcfe65c0fc)
+        (S)
+      x-cache-remote:
+      - TCP_REFRESH_MISS from a23-196-15-133.deploy.akamaitechnologies.com (AkamaiGHost/22.6.4-888a2d21768272d5e2d80e9762941e76)
+        (S)
+      x-content-type-options:
+      - nosniff
+      x-daiquiri-debug-worker-pid:
+      - '4671'
+      x-daiquiri-instance:
+      - daiquiri:12282007:mr47p00it-qujn07093001:7987:26RELEASE153:daiquiri-amp-store-l7shared-ext-001-mr
+      x-responding-instance:
+      - 'MZStoreServices:6501026:::'
+      x-true-cache-key:
+      - /L/itunes.apple.com/lookup vcd=2897 ci2=id=1200361736///
+      x-webobjects-loadaverage:
+      - '0'
+    status:
+      code: 200
+      message: OK
+version: 1

@@ -18,6 +18,7 @@ dependencies = [
     "pymongo>=4.11.0,!=4.15.0,<5.0.0",
     "slowapi>=0.1.9",
     "email-validator>=2.1.0",
+    "pillow>=12.3.0",
 ]
 
 [tool.setuptools.packages.find]
@@ -25,6 +26,25 @@ include = ["app*"]
 
 [tool.mypy]
 ignore_missing_imports = true
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "UP",     # pyupgrade
+    "B",      # flake8-bugbear
+    "SIM",    # flake8-simplify
+    "ASYNC",  # flake8-async
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
 
 [tool.pytest.ini_options]
 testpaths = ["app"]
@@ -66,6 +86,32 @@ forbidden_modules = [
     "app.infrastructure",
 ]
 
+# The domain may only use the stdlib and pydantic. Anything that talks to the
+# outside world (HTTP, databases, frameworks, settings) is infrastructure.
+[[tool.importlinter.contracts]]
+name = "Domain must only depend on stdlib and pydantic"
+type = "forbidden"
+source_modules = [
+    "app.domain",
+]
+forbidden_modules = [
+    "app.config",
+    "beanie",
+    "dotenv",
+    "email_validator",
+    "fastapi",
+    "httpx",
+    "motor",
+    "pydantic_settings",
+    "pymongo",
+    "requests",
+    "slowapi",
+    "starlette",
+    "tortoise",
+    "influxdb_client",
+    "uvicorn",
+]
+
 [dependency-groups]
 dev = [
     "pytest>=8.4.0",
@@ -76,4 +122,5 @@ dev = [
     "requests-mock>=1.12.0",
     "import-linter>=2.11",
     "mypy>=1.15.0",
+    "ruff>=0.16.9",
 ]

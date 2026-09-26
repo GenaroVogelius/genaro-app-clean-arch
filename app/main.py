@@ -10,7 +10,7 @@ from slowapi.util import get_remote_address
 
 from app.config.settings import Settings
 from app.domain.enums.enums import DatabaseTypes
-from app.infrastructure.api.main_routes import MainRoutes
+from app.infrastructure.api.podcast_routes import PodcastRoutes
 from app.infrastructure.db.main import (
     close_database_connections,
     initialize_databases,
@@ -60,8 +60,8 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-main_routes = MainRoutes()
-app.include_router(main_routes.router, prefix=settings.API_PREFIX, tags=["api rest"])
+podcast_routes = PodcastRoutes()
+app.include_router(podcast_routes.router, prefix=settings.API_PREFIX, tags=["podcasts"])
 
 app.state.limiter = limiter
 app.add_exception_handler(

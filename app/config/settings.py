@@ -50,3 +50,12 @@ class Settings(BaseSettings):
 
     # API settings
     API_PREFIX: str = "/api"
+
+    # iTunes Search API
+    ITUNES_BASE_URL: str = "https://itunes.apple.com"
+    ITUNES_TIMEOUT_SECONDS: float = 10.0
+
+    # Podcast artwork
+    ARTWORK_STORAGE_DIR: str = "media/artwork"
+    ARTWORK_TIMEOUT_SECONDS: float = 10.0
+    ARTWORK_PALETTE_SIZE: int = 5

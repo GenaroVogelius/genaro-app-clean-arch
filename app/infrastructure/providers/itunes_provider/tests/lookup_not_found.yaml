@@ -1,0 +1,90 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - itunes.apple.com
+      user-agent:
+      - python-httpx/0.28.1
+    method: GET
+    uri: https://itunes.apple.com/lookup?id=999999999999
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAA/+Pi4qrmUlAqSi0uzSlxzi/NK1GyMtCBixQrWSlEx3LVcnFxAQDhzP5MKgAAAA==
+    headers:
+      access-control-allow-origin:
+      - '*'
+      apple-originating-system:
+      - MZStoreServices
+      apple-seq:
+      - '0.0'
+      apple-timing-app:
+      - 10 ms
+      apple-tk:
+      - 'false'
+      b3:
+      - 90d0c77a6a44dcb7cc39829e1a39d11e-a3b2c768cd1666f6
+      cache-control:
+      - max-age=85655
+      connection:
+      - keep-alive
+      content-disposition:
+      - attachment; filename=1.txt
+      content-encoding:
+      - gzip
+      content-length:
+      - '55'
+      content-type:
+      - text/javascript; charset=utf-8
+      date:
+      - Sat, 26 Sep 2026 13:25:17 GMT
+      server:
+      - daiquiri/5
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Accept-Encoding
+      x-apple-application-instance:
+      - '6502103'
+      x-apple-application-site:
+      - MR22
+      x-apple-jingle-correlation-key:
+      - SDIMO6TKITOLPTBZQKPBUOORDY
+      x-apple-orig-url:
+      - https://itunes.apple.com/lookup?id=999999999999
+      x-apple-partner:
+      - origin.0
+      x-apple-request-uuid:
+      - 90d0c77a-6a44-dcb7-cc39-829e1a39d11e
+      x-apple-translated-wo-url:
+      - /WebObjects/MZStoreServices.woa/ws/wsLookup?id=999999999999&urlDesc=
+      x-b3-spanid:
+      - a3b2c768cd1666f6
+      x-b3-traceid:
+      - 90d0c77a6a44dcb7cc39829e1a39d11e
+      x-cache:
+      - TCP_HIT from a201-212-32-53.deploy.akamaitechnologies.com (AkamaiGHost/22.6.3-da071da6976b6d633b0b37bcfe65c0fc)
+        (-)
+      x-content-type-options:
+      - nosniff
+      x-daiquiri-debug-worker-pid:
+      - '117844'
+      x-daiquiri-instance:
+      - daiquiri:12282008:mr47p00it-qujn09122501:7987:26RELEASE153:daiquiri-amp-store-l7shared-ext-001-mr
+      x-responding-instance:
+      - 'MZStoreServices:6502103:::'
+      x-true-cache-key:
+      - /L/itunes.apple.com/lookup vcd=2897 ci2=id=999999999999///
+      x-webobjects-loadaverage:
+      - '0'
+    status:
+      code: 200
+      message: OK
+version: 1
