@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Tooling caches
+.pytest_cache/
+.mypy_cache/
+.grimp_cache/
+.coverage
+
+# Environment variables
+*.env
+.env
+
+# Virtual Environment
+.venv/
+ENV/
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+.claude
+
+# Podman local stack (compose.local.yml bind volumes)
+podman/local/volumes/*
+!podman/local/volumes/.gitkeep

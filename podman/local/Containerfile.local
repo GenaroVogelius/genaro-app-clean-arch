@@ -1,0 +1,51 @@
+FROM python:3.13-slim
+COPY --from=ghcr.io/astral-sh/uv:0.9.8 /uv /uvx /bin/
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/workspace
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
+
+# Create workspace directory
+WORKDIR /workspace
+
+# Install system dependencies and create user
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    gcc \
+    g++ \
+    build-essential \
+    locales \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen \
+    && locale-gen \
+    && useradd -ms /bin/bash vscode
+
+# Copy dependency files first for better layer caching
+COPY pyproject.toml uv.lock ./
+
+# Install dependencies using cache mount
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --locked --no-install-project
+
+# Copy the rest of the project
+COPY . /workspace
+
+# Sync the project (installs the project itself)
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --locked
+
+# Set ownership and configure Git
+RUN chown -R vscode:vscode /workspace
+
+USER vscode
+
+# Configure Git to trust the workspace directory
+RUN git config --global --add safe.directory /workspace
+
+# Expose port
+EXPOSE 8000

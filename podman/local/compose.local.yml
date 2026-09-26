@@ -1,0 +1,73 @@
+# From repo root:
+#
+#   podman compose -f podman/local/compose.local.yml up -d
+#
+# Only MongoDB (e.g. to run the API on the host):
+#
+#   podman compose -f podman/local/compose.local.yml up -d mongodb
+
+# Explicit project name: without it compose uses the directory name ("local"),
+# which collides with other projects that also keep their compose in podman/local.
+name: genaro-app
+
+services:
+  app:
+    build:
+      context: ../..
+      dockerfile: podman/local/Containerfile.local
+    container_name: genaro-app-api-backend
+    # Rootless Podman: container UID 0 (root) maps to the host user, so bind-mounted
+    # repo files are readable/writable. keep-id is intentionally omitted because
+    # userns_mode: keep-id triggers a crun/netavark ping_group_range sysctl error
+    # when the subgid range is smaller than the full 32-bit GID space.
+    user: root
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - PYTHONPATH=/workspace
+      - MONGODB_URL=mongodb://${MONGODB_USER:-admin}:${MONGODB_PASSWORD:-password123}@mongodb:27017/${MONGODB_DATABASE:-genaro-app-mongodb}?authSource=admin
+      - MONGODB_DATABASE=${MONGODB_DATABASE:-genaro-app-mongodb}
+      - DEBUG=true
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - UV_LINK_MODE=copy
+    volumes:
+      # :z so SELinux (e.g. Fedora) allows reads on the repo bind mount (user_home_t).
+      - ../..:/workspace:z
+      - ./volumes/app_venv:/workspace/.venv
+      - ./volumes/app_uv_cache:/root/.cache/uv
+      - ~/.gitconfig:/root/.gitconfig:ro,z
+    networks:
+      - api-backend-network
+    command: sh -c "uv sync --locked && exec uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir app"
+
+  mongodb:
+    image: docker.io/library/mongo:7
+    container_name: genaro-app-mongodb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USER:-admin}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD:-password123}
+      - MONGO_INITDB_DATABASE=${MONGODB_DATABASE:-genaro-app-mongodb}
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./volumes/mongodb_data:/data/db:z
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - api-backend-network
+    restart: unless-stopped
+
+networks:
+  api-backend-network:
+    driver: bridge

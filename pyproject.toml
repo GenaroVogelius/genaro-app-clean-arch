@@ -1,0 +1,79 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "genaro-app"
+version = "0.1.0"
+description = "genaro-app backend service"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.115.12",
+    "uvicorn>=0.34.3",
+    "python-dotenv>=1.1.0",
+    "pydantic>=2.11.7",
+    "pydantic-settings>=2.9.1",
+    "httpx>=0.28.1",
+    "beanie>=2.0.0",
+    "pymongo>=4.11.0,!=4.15.0,<5.0.0",
+    "slowapi>=0.1.9",
+    "email-validator>=2.1.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.mypy]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["app"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--tb=short",
+    "--strict-markers",
+    "--color=yes",
+    # Ignore warnings related to pydantic and deprecation warnings from third party libraries
+    "-W",
+    "ignore::pydantic.warnings.PydanticDeprecatedSince211",
+    "-W",
+    "ignore::DeprecationWarning"
+]
+markers = [
+    "integration: marks tests as integration tests (require running server)",
+    "slow: marks tests as slow running",
+    "rate_limit: marks tests related to rate limiting"
+]
+asyncio_mode = "auto"
+# Avoid deprecated/unset loop scope (pytest-asyncio 1.x); reduces flaky async fixture behavior.
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.importlinter]
+root_package = "app"
+include_external_packages = true
+exclude_type_checking_imports = true
+
+[[tool.importlinter.contracts]]
+name = "Domain must not import from infrastructure"
+type = "forbidden"
+source_modules = [
+    "app.domain",
+]
+forbidden_modules = [
+    "app.infrastructure",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=6.0.0",
+    "mongomock-motor>=0.0.36",
+    "vcrpy>=8.1.1",
+    "requests-mock>=1.12.0",
+    "import-linter>=2.11",
+    "mypy>=1.15.0",
+]
