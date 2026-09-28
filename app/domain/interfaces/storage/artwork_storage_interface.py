@@ -7,14 +7,15 @@ class ArtworkStorageInterface(ABC):
     """
 
     @abstractmethod
-    async def store(self, podcast_id: int, content: bytes, extension: str) -> str:
+    async def store(self, podcast_id: int, content: bytes, source_url: str) -> str:
         """
         Store the artwork image of a podcast, replacing any previous one.
 
         Args:
             podcast_id: id of the podcast the artwork belongs to.
             content: Raw image content.
-            extension: File extension including the dot (e.g. ".jpg").
+            source_url: URL the image was downloaded from, so the storage can
+                decide how to name or type it.
 
         Returns:
             Where the image was stored.

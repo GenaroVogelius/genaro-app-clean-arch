@@ -81,4 +81,3 @@ class GlobalMapper(MapperInterface):
 
         mapping_func = self._mappings[key]
         return [mapping_func(item) for item in source_list]
-

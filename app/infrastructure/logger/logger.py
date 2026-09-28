@@ -47,7 +47,8 @@ class Logger(LoggerInterface):
         console_handler.setFormatter(console_format)
         self._logger.addHandler(console_handler)
 
-        # File handler - only add if not in container and logs directory exists or can be created
+        # File handler - only add if not in container and logs directory exists
+        # or can be created
         if not is_container:
             try:
                 # Ensure logs directory exists
@@ -65,7 +66,8 @@ class Logger(LoggerInterface):
                 file_handler.setFormatter(file_format)
                 self._logger.addHandler(file_handler)
             except (OSError, PermissionError):
-                # If we can't create the logs directory or file, just use console logging
+                # If we can't create the logs directory or file, just use console
+                # logging.
                 # This is common in CI environments or read-only filesystems
                 pass
 

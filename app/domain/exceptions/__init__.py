@@ -4,6 +4,7 @@ from app.domain.exceptions.exceptions import (
     NotAPodcastError,
     PodcastNotFoundError,
     PodcastPersistenceError,
+    PodcastRetrievalError,
 )
 
 __all__ = [
@@ -12,4 +13,5 @@ __all__ = [
     "NotAPodcastError",
     "PodcastNotFoundError",
     "PodcastPersistenceError",
+    "PodcastRetrievalError",
 ]

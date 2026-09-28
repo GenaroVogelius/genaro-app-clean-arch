@@ -40,3 +40,19 @@ async def test_download_raises_on_transport_error() -> None:
 
     with pytest.raises(ArtworkUnavailableError, match="ConnectError"):
         await downloader.download(URL)
+
+
+@pytest.mark.asyncio
+async def test_download_uses_shared_client_and_follows_redirects() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path == "/moved.jpg":
+            return httpx.Response(301, headers={"Location": URL})
+        return httpx.Response(200, content=b"image-bytes")
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        downloader = HttpArtworkDownloader(client=client)
+
+        content = await downloader.download("https://is1-ssl.mzstatic.com/moved.jpg")
+
+        assert content == b"image-bytes"
+        assert not client.is_closed

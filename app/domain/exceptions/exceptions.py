@@ -16,3 +16,7 @@ class PodcastPersistenceError(Exception):
 
 class ArtworkUnavailableError(Exception):
     """The artwork of a podcast could not be downloaded, processed or stored."""
+
+
+class PodcastRetrievalError(Exception):
+    """The stored podcasts could not be read."""

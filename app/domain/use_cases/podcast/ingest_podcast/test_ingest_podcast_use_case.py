@@ -13,6 +13,9 @@ from app.domain.interfaces.providers.podcasts import PodcastLookupProviderInterf
 from app.domain.interfaces.repositories.podcasts import PodcastsRepositoryInterface
 from app.domain.interfaces.services import ColorPaletteExtractorInterface
 from app.domain.interfaces.storage import ArtworkStorageInterface
+from app.domain.services.podcast_artwork import PodcastArtworkResolver
+from app.domain.simple_entities.podcast_list_criteria import PodcastListCriteria
+from app.domain.simple_entities.podcast_page import PodcastPage
 from app.domain.simple_entities.status import Status, StatusType
 from app.domain.use_cases.podcast.ingest_podcast.ingest_podcast_use_case import (
     IngestPodcastUseCase,
@@ -45,6 +48,14 @@ class FakePodcastsRepository(PodcastsRepositoryInterface):
     async def get_podcast_by_id(self, podcast_id: int) -> Podcast | None:
         return self._stored
 
+    async def list_podcasts(self, criteria: PodcastListCriteria) -> PodcastPage:
+        return PodcastPage(offset=criteria.offset, limit=criteria.limit)
+
+    async def list_podcasts_after(
+        self, after_id: int | None, limit: int
+    ) -> list[Podcast]:
+        return []
+
     async def store_podcast(self, podcast: Podcast) -> Status:
         self.store_calls.append(podcast)
         return self._status
@@ -66,9 +77,9 @@ class FakeArtworkStorage(ArtworkStorageInterface):
     def __init__(self) -> None:
         self.store_calls: list[tuple[int, bytes, str]] = []
 
-    async def store(self, podcast_id: int, content: bytes, extension: str) -> str:
-        self.store_calls.append((podcast_id, content, extension))
-        return f"media/artwork/{podcast_id}{extension}"
+    async def store(self, podcast_id: int, content: bytes, source_url: str) -> str:
+        self.store_calls.append((podcast_id, content, source_url))
+        return f"media/artwork/{podcast_id}.jpg"
 
 
 class FakeColorPaletteExtractor(ColorPaletteExtractorInterface):
@@ -118,9 +129,11 @@ class Harness:
         self.use_case = IngestPodcastUseCase(
             provider=self.provider,
             repository=self.repository,
-            downloader=self.downloader,
-            storage=self.storage,
-            palette_extractor=self.extractor,
+            artwork_resolver=PodcastArtworkResolver(
+                downloader=self.downloader,
+                storage=self.storage,
+                palette_extractor=self.extractor,
+            ),
             logger=self.logger,
         )
 
@@ -174,7 +187,7 @@ async def test_ingest_podcast_processes_artwork_and_returns_status() -> None:
     assert harness.provider.lookup_calls == [1200361736]
     assert harness.downloader.download_calls == [ARTWORK_URL]
     assert harness.extractor.extract_calls == [IMAGE]
-    assert harness.storage.store_calls == [(1200361736, IMAGE, ".jpg")]
+    assert harness.storage.store_calls == [(1200361736, IMAGE, ARTWORK_URL)]
     assert harness.stored_podcast.artwork == Artwork.model_validate(
         {
             "source_url": ARTWORK_URL,

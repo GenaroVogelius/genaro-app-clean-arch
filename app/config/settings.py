@@ -7,19 +7,25 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from app.infrastructure.utils.decorators.singleton import singleton
 
 load_dotenv()
-devcontainer_env_path = (
-    Path(__file__).parent.parent.parent / "podman" / "local" / "devcontainer.env"
-)
+podman_local_dir = Path(__file__).parent.parent.parent / "podman" / "local"
+podman_local_env_path = podman_local_dir / ".env"
+devcontainer_env_path = podman_local_dir / "devcontainer.env"
 if devcontainer_env_path.exists():
     load_dotenv(devcontainer_env_path, override=False)
+
+# Env files read by Settings, later ones taking priority. podman/local/.env is
+# included so its values (e.g. AUTH=False) also apply when running on the host.
+env_files = [
+    str(path)
+    for path in (podman_local_env_path, Path(".env"), devcontainer_env_path)
+    if path.exists()
+]
 
 
 @singleton
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=[".env", str(devcontainer_env_path)]
-        if devcontainer_env_path.exists()
-        else ".env",
+        env_file=env_files,
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore",
@@ -51,11 +57,22 @@ class Settings(BaseSettings):
     # API settings
     API_PREFIX: str = "/api"
 
+    # API key authentication (header X-API-Key). Disable only for local dev.
+    AUTH: bool = True
+    API_KEY: str | None = None
+
     # iTunes Search API
     ITUNES_BASE_URL: str = "https://itunes.apple.com"
     ITUNES_TIMEOUT_SECONDS: float = 10.0
 
-    # Podcast artwork
+    # Bulk podcast ingestion: podcasts processed at the same time.
+    PODCAST_INGEST_CONCURRENCY: int = 5
+
+    # Podcast export: podcasts read from the database per batch. At least 1,
+    # since MongoDB treats a limit of 0 as no limit.
+    PODCAST_EXPORT_BATCH_SIZE: int = Field(default=500, ge=1)
+
+    # Podcast artwork path
     ARTWORK_STORAGE_DIR: str = "media/artwork"
     ARTWORK_TIMEOUT_SECONDS: float = 10.0
     ARTWORK_PALETTE_SIZE: int = 5

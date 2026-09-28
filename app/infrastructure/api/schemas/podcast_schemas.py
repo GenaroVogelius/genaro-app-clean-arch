@@ -3,6 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel
 
 from app.domain.aggregates.podcast import Artwork, Explicitness, PaletteColor, Podcast
+from app.domain.simple_entities.podcast_page import PodcastPage
 
 
 class PaletteColorResponse(BaseModel):
@@ -86,6 +87,31 @@ class PodcastResponse(BaseModel):
                 if podcast.artwork is None
                 else ArtworkResponse.from_entity(podcast.artwork)
             ),
+        )
+
+
+class PodcastPageResponse(BaseModel):
+    items: list[PodcastResponse]
+    total: int
+    offset: int
+    limit: int
+
+    @classmethod
+    def from_entity(cls, page: PodcastPage) -> "PodcastPageResponse":
+        """
+        Build the API response from a page of podcasts.
+
+        Args:
+            page: The page of podcasts.
+
+        Returns:
+            The page as exposed by the API.
+        """
+        return cls(
+            items=[PodcastResponse.from_entity(podcast) for podcast in page.items],
+            total=page.total,
+            offset=page.offset,
+            limit=page.limit,
         )
 
 

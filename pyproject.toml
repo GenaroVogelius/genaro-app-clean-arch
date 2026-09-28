@@ -123,4 +123,5 @@ dev = [
     "import-linter>=2.11",
     "mypy>=1.15.0",
     "ruff>=0.16.9",
+    "httpx2>=2.13.1",
 ]

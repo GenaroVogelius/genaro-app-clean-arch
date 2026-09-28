@@ -1,6 +1,7 @@
 import logging
 from contextlib import asynccontextmanager
 
+import httpx
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -10,7 +11,7 @@ from slowapi.util import get_remote_address
 
 from app.config.settings import Settings
 from app.domain.enums.enums import DatabaseTypes
-from app.infrastructure.api.podcast_routes import PodcastRoutes
+from app.infrastructure.api.podcast_routes import router as podcast_router
 from app.infrastructure.db.main import (
     close_database_connections,
     initialize_databases,
@@ -43,7 +44,11 @@ async def lifespan(app: FastAPI):
         logger.error(f"Error en startup: {e!s}")
         raise
 
-    yield
+    # One HTTP client shared by every outbound adapter, so connections are
+    # reused across requests. Closed on shutdown.
+    async with httpx.AsyncClient() as http_client:
+        app.state.http_client = http_client
+        yield
 
     # Shutdown
     try:
@@ -60,8 +65,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-podcast_routes = PodcastRoutes()
-app.include_router(podcast_routes.router, prefix=settings.API_PREFIX, tags=["podcasts"])
+app.include_router(podcast_router, prefix=settings.API_PREFIX, tags=["podcasts"])
 
 app.state.limiter = limiter
 app.add_exception_handler(
@@ -88,6 +92,7 @@ async def http_exception_handler(request, exc):
     return JSONResponse(
         status_code=exc.status_code,
         content={"error": exc.detail, "status_code": exc.status_code},
+        headers=exc.headers,
     )
 
 

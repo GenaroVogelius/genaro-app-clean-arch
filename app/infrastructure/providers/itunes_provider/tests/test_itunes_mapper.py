@@ -106,9 +106,7 @@ def test_maps_missing_artwork_url_to_no_artwork() -> None:
 def test_translates_itunes_explicitness_to_domain_values(
     itunes_value: str | None, expected: Explicitness | None
 ) -> None:
-    podcast = mapper.map(
-        _podcast_result(collectionExplicitness=itunes_value), Podcast
-    )
+    podcast = mapper.map(_podcast_result(collectionExplicitness=itunes_value), Podcast)
 
     assert podcast.explicitness is expected
 

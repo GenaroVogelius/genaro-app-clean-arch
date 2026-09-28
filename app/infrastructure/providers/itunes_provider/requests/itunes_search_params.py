@@ -44,3 +44,14 @@ class ITunesSearchParams(BaseModel):
                 f"entity '{self.entity}' is not valid for media '{self.media}'"
             )
         return self
+
+    def to_query(self) -> dict[str, str | int]:
+        """Build the query string parameters of the iTunes Search API request.
+
+        Returns:
+            The params, without the unset ones and with `explicit` as the
+            "Yes"/"No" value iTunes expects.
+        """
+        query = self.model_dump(mode="json", exclude_none=True)
+        query["explicit"] = "Yes" if self.explicit else "No"
+        return query

@@ -56,3 +56,25 @@ def test_rejects_non_alpha2_country(country: str) -> None:
 def test_rejects_empty_term() -> None:
     with pytest.raises(ValidationError):
         ITunesSearchParams(term="")
+
+
+def test_to_query_drops_unset_params_and_formats_explicit() -> None:
+    params = ITunesSearchParams(
+        term="rock and roll", media=Media.PODCAST, entity=Entity.PODCAST, limit=10
+    )
+
+    assert params.to_query() == {
+        "term": "rock and roll",
+        "country": "US",
+        "media": "podcast",
+        "entity": "podcast",
+        "limit": 10,
+        "lang": "en_us",
+        "explicit": "Yes",
+    }
+
+
+def test_to_query_formats_disabled_explicit_as_no() -> None:
+    params = ITunesSearchParams(term="rock", explicit=False)
+
+    assert params.to_query()["explicit"] == "No"

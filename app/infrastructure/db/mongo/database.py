@@ -1,6 +1,7 @@
 import importlib
 import inspect
 from pathlib import Path
+
 from beanie import Document, init_beanie
 from pymongo import AsyncMongoClient
 from pymongo.asynchronous.database import AsyncDatabase
@@ -22,10 +23,12 @@ db = Database()
 
 
 def _discover_repository_document_modules() -> list[str]:
-    """Build dotted import paths for Beanie documents under ``repositories/*_repository/*_document.py``.
+    """Build dotted import paths for Beanie documents under
+    ``repositories/*_repository/*_document.py``.
 
-    Each subdirectory of ``repositories`` whose name ends with ``_repository`` is scanned for
-    ``*_document.py`` files; each file becomes ``app.infrastructure.db.mongo.repositories.<pkg>.<module>``.
+    Each subdirectory of ``repositories`` whose name ends with ``_repository``
+    is scanned for ``*_document.py`` files; each file becomes
+    ``app.infrastructure.db.mongo.repositories.<pkg>.<module>``.
 
     Returns:
         Sorted module paths so document registration order is stable across runs.
@@ -45,7 +48,8 @@ def _discover_repository_document_modules() -> list[str]:
 
 def get_document_models() -> list[type[Document]]:
     """
-    Automatically discover all Document models defined in the repository document modules.
+    Automatically discover all Document models defined in the repository
+    document modules.
     Returns a list of all classes that inherit from Document.
     """
     document_models: list[type[Document]] = []

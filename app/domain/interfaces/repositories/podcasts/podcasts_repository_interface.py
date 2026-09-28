@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 
 from app.domain.aggregates.podcast import Podcast
+from app.domain.simple_entities.podcast_list_criteria import PodcastListCriteria
+from app.domain.simple_entities.podcast_page import PodcastPage
 from app.domain.simple_entities.status import Status
 
 
@@ -19,6 +21,54 @@ class PodcastsReaderInterface(ABC):
 
         Returns:
             The stored podcast, or None if it isn't stored.
+        """
+
+
+class PodcastsListerInterface(ABC):
+    """
+    Lister interface for the Podcast data
+    """
+
+    @abstractmethod
+    async def list_podcasts(self, criteria: PodcastListCriteria) -> PodcastPage:
+        """
+        List a page of stored podcasts, sorted by name and then by id.
+
+        Args:
+            criteria: Text matched case-insensitively as a substring of the name
+                or the author (every podcast when None), plus the offset and
+                limit of the page.
+
+        Returns:
+            The podcasts of the requested page, and the total number of podcasts
+            matching the criteria before pagination.
+        """
+
+
+class PodcastsExporterInterface(ABC):
+    """
+    Exporter interface for the Podcast data, reading every stored podcast a
+    batch at a time
+    """
+
+    @abstractmethod
+    async def list_podcasts_after(
+        self, after_id: int | None, limit: int
+    ) -> list[Podcast]:
+        """
+        List the next batch of stored podcasts, sorted by id (keyset pagination).
+
+        Args:
+            after_id: Only podcasts with a greater id are listed. None starts
+                from the first podcast.
+            limit: Maximum number of podcasts to return.
+
+        Returns:
+            Up to limit podcasts with an id greater than after_id, sorted by id.
+            Empty once there are no more podcasts.
+
+        Raises:
+            PodcastRetrievalError: The stored podcasts could not be read.
         """
 
 
@@ -42,5 +92,10 @@ class PodcastsWriterInterface(ABC):
         """
 
 
-class PodcastsRepositoryInterface(PodcastsReaderInterface, PodcastsWriterInterface):
+class PodcastsRepositoryInterface(
+    PodcastsReaderInterface,
+    PodcastsListerInterface,
+    PodcastsExporterInterface,
+    PodcastsWriterInterface,
+):
     pass

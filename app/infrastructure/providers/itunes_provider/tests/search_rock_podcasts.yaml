@@ -1,0 +1,138 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - itunes.apple.com
+      user-agent:
+      - python-httpx/0.28.1
+    method: GET
+    uri: https://itunes.apple.com/search?term=rock+and+roll&country=US&media=podcast&entity=podcast&limit=10&lang=en_us&explicit=Yes
+  response:
+    body:
+      string: !!binary |
+        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
+    headers:
+      access-control-allow-origin:
+      - '*'
+      apple-originating-system:
+      - MZStoreServices
+      apple-seq:
+      - '0.0'
+      apple-timing-app:
+      - 129 ms
+      apple-tk:
+      - 'false'
+      b3:
+      - c05a5e052bba35af68eb576e80029aea-fb9db44111b52fc5
+      cache-control:
+      - max-age=86400
+      connection:
+      - keep-alive
+      content-disposition:
+      - attachment; filename=1.txt
+      content-encoding:
+      - gzip
+      content-length:
+      - '2487'
+      content-type:
+      - text/javascript; charset=utf-8
+      date:
+      - Sat, 26 Sep 2026 20:04:36 GMT
+      server:
+      - daiquiri/5
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains
+      vary:
+      - Accept-Encoding
+      x-apple-application-instance:
+      - '6502148'
+      x-apple-application-site:
+      - MR22
+      x-apple-jingle-correlation-key:
+      - YBNF4BJLXI2262HLK5XIAAU25I
+      x-apple-orig-url:
+      - https://mzstoreservices-mr.itunes.apple.com/search?term=rock+and+roll&country=US&media=podcast&entity=podcast&limit=10&lang=en_us&explicit=Yes
+      x-apple-partner:
+      - origin.0
+      x-apple-request-uuid:
+      - c05a5e05-2bba-35af-68eb-576e80029aea
+      x-apple-translated-wo-url:
+      - /WebObjects/MZStoreServices.woa/ws/wsSearch?term=rock+and+roll&country=US&media=podcast&entity=podcast&limit=10&lang=en_us&explicit=Yes&urlDesc=
+      x-b3-spanid:
+      - fb9db44111b52fc5
+      x-b3-traceid:
+      - c05a5e052bba35af68eb576e80029aea
+      x-cache:
+      - TCP_MISS from a201-212-32-53.deploy.akamaitechnologies.com (AkamaiGHost/22.6.3-da071da6976b6d633b0b37bcfe65c0fc)
+        (-)
+      x-cache-remote:
+      - TCP_MISS from a2-18-29-52.deploy.akamaitechnologies.com (AkamaiGHost/22.6.4-888a2d21768272d5e2d80e9762941e76)
+        (-)
+      x-content-type-options:
+      - nosniff
+      x-daiquiri-debug-worker-pid:
+      - '13325'
+      - '22731'
+      x-daiquiri-instance:
+      - daiquiri:17317007:mr36p00it-hyhk06054701:7987:26RELEASE153:daiquiri-amp-store-shared-int-001-mr
+      - daiquiri:12282006:mr47p00it-qujn05121902:7987:26RELEASE153:daiquiri-amp-store-l7shared-ext-001-mr
+      x-responding-instance:
+      - 'MZStoreServices:6502148:::'
+      x-true-cache-key:
+      - /L/itunes.apple.com/search vcd=2897 ci2=country=US&entity=podcast&explicit=Yes&lang=en_us&limit=10&media=podcast&term=rock+and+roll///
+      x-webobjects-loadaverage:
+      - '0'
+    status:
+      code: 200
+      message: OK
+version: 1

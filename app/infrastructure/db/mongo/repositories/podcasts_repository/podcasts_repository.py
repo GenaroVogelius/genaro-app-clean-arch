@@ -1,6 +1,12 @@
+import re
+from typing import Any
+
 from app.domain.aggregates.podcast import Podcast
+from app.domain.exceptions import PodcastRetrievalError
 from app.domain.interfaces.mapper import MapperInterface
 from app.domain.interfaces.repositories.podcasts import PodcastsRepositoryInterface
+from app.domain.simple_entities.podcast_list_criteria import PodcastListCriteria
+from app.domain.simple_entities.podcast_page import PodcastPage
 from app.domain.simple_entities.status import Status, StatusType
 from app.infrastructure.db.mongo.repositories.podcasts_repository.podcast_document import (  # noqa: E501
     PodcastDocument,
@@ -11,7 +17,7 @@ from app.infrastructure.db.mongo.repositories.podcasts_repository.podcast_mapper
 from app.infrastructure.logger import logger
 
 
-class PodcastsRepository(PodcastsRepositoryInterface):
+class MongoPodcastsRepository(PodcastsRepositoryInterface):
     def __init__(self, mapper: MapperInterface | None = None):
         """
         MongoDB implementation of the podcasts repository.
@@ -38,6 +44,70 @@ class PodcastsRepository(PodcastsRepositoryInterface):
         if document is None:
             return None
         return self._mapper.map(document, Podcast)
+
+    async def list_podcasts(self, criteria: PodcastListCriteria) -> PodcastPage:
+        """
+        List a page of stored podcasts, sorted by name and then by podcast_id.
+
+        Args:
+            criteria: Text matched case-insensitively as a substring of the name
+                or the author (every podcast when None), plus the offset and
+                limit of the page.
+
+        Returns:
+            The podcasts of the requested page, and the total number of podcasts
+            matching the criteria before pagination.
+        """
+        query = _search_filter(criteria.q)
+        total = await PodcastDocument.find(query).count()
+        documents = (
+            await PodcastDocument.find(query)
+            .sort("+name", "+podcast_id")
+            .skip(criteria.offset)
+            .limit(criteria.limit)
+            .to_list()
+        )
+        return PodcastPage(
+            items=[self._mapper.map(document, Podcast) for document in documents],
+            total=total,
+            offset=criteria.offset,
+            limit=criteria.limit,
+        )
+
+    async def list_podcasts_after(
+        self, after_id: int | None, limit: int
+    ) -> list[Podcast]:
+        """
+        List the next batch of stored podcasts, sorted by podcast_id (keyset
+        pagination on its unique index, so no cursor stays open between
+        batches).
+
+        Args:
+            after_id: Only podcasts with a greater podcast_id are listed. None
+                starts from the first podcast.
+            limit: Maximum number of podcasts to return.
+
+        Returns:
+            Up to limit podcasts with a podcast_id greater than after_id,
+            sorted by podcast_id.
+
+        Raises:
+            PodcastRetrievalError: The database query failed.
+        """
+        query: dict[str, Any] = (
+            {} if after_id is None else {"podcast_id": {"$gt": after_id}}
+        )
+        try:
+            documents = (
+                await PodcastDocument.find(query)
+                .sort("+podcast_id")
+                .limit(limit)
+                .to_list()
+            )
+        except Exception as e:
+            logger.error(f"Error listing podcasts after id {after_id}: {e}")
+            raise PodcastRetrievalError("stored podcasts could not be read") from e
+        return [self._mapper.map(document, Podcast) for document in documents]
 
     async def store_podcast(self, podcast: Podcast) -> Status:
         """
@@ -78,3 +148,20 @@ class PodcastsRepository(PodcastsRepositoryInterface):
         return Status(
             status=StatusType.UPDATED, message=f"updated podcast {podcast.podcast_id}"
         )
+
+
+def _search_filter(q: str | None) -> dict[str, Any]:
+    """
+    Build the MongoDB filter matching podcasts whose name or author contains
+    the search text, ignoring case.
+
+    Args:
+        q: The search text, matched literally, or None to match every podcast.
+
+    Returns:
+        The filter to query the podcasts collection with.
+    """
+    if q is None:
+        return {}
+    pattern = {"$regex": re.escape(q), "$options": "i"}
+    return {"$or": [{"name": pattern}, {"author": pattern}]}
