@@ -19,6 +19,7 @@ Pillow · slowapi · uv · Python 3.13 · pytest, mypy, ruff, import-linter.
 7. [Adding a feature](#adding-a-feature)
 8. [Troubleshooting](#troubleshooting)
 9. [RuleSync](#rulesync)
+10. [Next production steps](#next-production-steps)
 
 ---
 
@@ -194,8 +195,8 @@ but only if you don't also use Mode A. The container would then try to reach
 - Every endpoint except `GET /api/podcasts/health` requires the API key when
   `AUTH=True`.
 - Each client IP gets `RATE_LIMIT` requests (10/minute by default) shared
-  across every endpoint, health included. Over it, the API answers 429 with a
-  `Retry-After` header. `/docs`, `/redoc` and `/openapi.json` don't count.
+  across every endpoint. Over it, the API answers 429 with a `Retry-After`
+  header. `/docs`, `/redoc`, `/openapi.json` and the health check don't count.
 
 ---
 
@@ -304,7 +305,9 @@ not in CI yet, so run them locally before pushing.
   failing open.
 - **Rate limiting** (`infrastructure/api/rate_limit.py`, slowapi). One bucket
   per client IP for the whole API (`application_limits`, not per-endpoint
-  `default_limits`). Counters live in memory: per process and reset on
+  `default_limits`). The health check is exempt (`@rate_limit_exempt`):
+  load balancers poll it from a few fixed IPs, and a 429 would take a healthy
+  task out of rotation. Counters live in memory: per process and reset on
   restart, which is fine for the single uvicorn worker. Scaling out needs a
   shared store (`storage_uri="redis://..."`). Behind a reverse proxy every
   client would share the proxy's IP, so the key function would have to read
@@ -397,3 +400,195 @@ What's in `.rulesync/`:
   `provider-domain-entities`, `type-external-service-responses`
 - **commands/**: `review-pr`
 - **hooks.json**: formatter run after file edits
+
+---
+
+## Next production steps
+
+What's still needed to run this service in production on AWS.
+
+### Production image
+
+`podman/local/Containerfile.local` is built for development. It ships gcc, git
+and build-essential, compose runs it as root, and Uvicorn runs with `--reload`.
+None of that belongs in production.
+
+- **Separate multi-stage `Containerfile`.** The builder stage runs
+  `uv sync --locked --no-dev`. The runtime stage is a slim Python image that
+  copies only the venv and `app/`, with no gcc or git.
+- **Non-root user, no `--reload`.** Run Uvicorn as an unprivileged user.
+- **CA bundle for DocumentDB.** The image includes the AWS RDS CA bundle, for security reasons.
+- **Health checks.** `GET /api/podcasts/health` becomes the readiness check,
+  since it pings the database. Liveness gets its own lightweight check that
+  doesn't touch the database, so a database outage takes tasks out of
+  rotation instead of restarting all of them.
+
+### Configuration and secrets
+
+`app/config/settings.py` has defaults that are fine locally but dangerous in
+production: `MONGODB_PASSWORD="password123"`, `DEBUG=True` and
+`ALLOW_ORIGINS="*"`.
+
+- **It stays 12-factor.** `Settings` already reads everything from environment
+  variables, so production only changes where those values come from.
+- **No unsafe defaults.** In production, `MONGODB_*`, `API_KEY` and
+  `ALLOW_ORIGINS` are required. A misconfigured task refuses to start instead
+  of quietly using `password123`. `DEBUG` defaults to `false`.
+- **Non-secret config** (concurrency, batch sizes, rate limits, timeouts) is
+  set in the ECS task definition and versioned in Terraform with the rest of
+  the infrastructure.
+- **Secrets live in AWS Secrets Manager.** ECS injects them into the task as
+  environment variables. They never appear in the image or the repo.
+- **DocumentDB credentials.** The database password is stored in Secrets
+  Manager with managed rotation turned on. `MONGODB_URL` must include
+  `tls=true`, `tlsCAFile=<bundle path>` and `retryWrites=false`, because
+  DocumentDB doesn't support retryable writes.
+- **Per-client API keys.** Replace the single shared `API_KEY` with one key
+  per client, stored hashed in the database, so each key can be rotated or
+  revoked on its own or we can use JTW for auth.
+
+### Deploying on AWS
+
+The same image is built once and runs with a different command for each job:
+
+| Command | Runs as |
+|---|---|
+| `api` | ECS Fargate service, scaled on CPU and request count |
+| `migrate` | One-off ECS Fargate task, run before each rollout (see below) |
+| `prefect-worker` | ECS Fargate service that polls the Prefect work pool and starts each flow run as its own ECS task (see [Continuous ingestion](#continuous-ingestion)) |
+| `worker --queue=feeds\|episodes\|artwork` | One ECS Fargate service per SQS queue, scaled on queue depth. Only in the Prefect + SQS stage |
+
+- **ECR** stores the images, each tagged with the git SHA it was built from.
+- **Terraform** defines all the infrastructure: ECS cluster and services, task
+  definitions, ECR, DocumentDB, S3/CloudFront, Secrets Manager, IAM roles and
+  alarms.
+- **Amazon DocumentDB** runs in private subnets. Only the ECS tasks' security
+  group can reach it.
+- **Rate limiting with more than one task.** As noted in
+  [Design decisions](#design-decisions), slowapi counts in memory per process.
+  With several tasks it needs a shared store (`storage_uri`). The key function
+  must also read `X-Forwarded-For`, or every client would share the load
+  balancer's IP.
+
+### Continuous ingestion
+
+Today podcasts are only ingested when someone calls
+`POST /api/podcasts/ingest` or `POST /api/podcasts/{id}/ingest`. The work runs
+inside the HTTP request, and nothing keeps the catalog fresh on its own.
+Ingestion should run on a schedule, so nobody has to call the endpoints by
+hand. The endpoints stay for one-off runs.
+
+The setup depends on the volume. Both stages call the same use cases, so moving
+from the first to the second doesn't touch the domain.
+
+**Moderate volume (tens of thousands of feeds): Prefect only.**
+
+- **Flows are a driving adapter.** They live in
+  `app/infrastructure/orchestration/` and build the use cases (for example
+  `IngestPodcastsUseCase`) the same way the FastAPI routes do. The domain
+  never imports Prefect. Add an import-linter contract to enforce it.
+- **Scheduled deployments replace the manual calls.** A cron schedule runs the
+  discovery flow (search terms and countries from config) and the refresh
+  flow for podcasts already stored.
+- **Batch the work.** One task handles a few hundred podcasts and calls a bulk
+  upsert. That keeps the tracked task runs in the thousands per day instead of
+  one per item.
+- **Built-in reliability.** Prefect gives retries, timeouts, run history and a
+  UI. Its concurrency and rate limits, shared across workers, enforce the
+  iTunes limit (about 20 requests/min) and a limit per feed host.
+- **Runs on ECS.** A Prefect ECS work pool starts each flow run as a Fargate
+  task. Secrets stay in Secrets Manager and are injected as environment
+  variables, not stored in Prefect Blocks, so `Settings` remains the single
+  source of configuration.
+- **The API stops doing the work.** The ingest endpoints trigger a Prefect
+  deployment run and answer `202` with the flow run id. The run's state
+  replaces a hand-made `/jobs/{id}` endpoint.
+
+**Millions of episodes, polled continuously: Prefect + SQS.**
+
+At this volume, tracking every feed fetch as a Prefect task would overload the
+Prefect server. Prefect keeps the scheduling and coordination, and SQS carries
+the per-item work.
+
+- **Prefect handles:** schedules, discovery, backfills, the periodic "find
+  feeds that are due and push them to SQS" pass, and manual reruns.
+- **SQS and worker services handle:** fetching feeds, upserting episodes and
+  processing artwork. Each queue has its own `worker --queue=...` ECS service
+  that scales on queue depth.
+- **SQS guarantees.**
+  - Each queue has a dead-letter queue for messages that keep failing.
+  - The visibility timeout redelivers the message a crashed worker was
+    holding.
+  - Redelivery is safe because every write is an idempotent upsert keyed by
+    id (see [Design decisions](#design-decisions)).
+
+### Migrations as their own step
+
+Today `connect_to_mongo()` (`app/infrastructure/db/mongo/database.py`) calls
+`init_beanie`, which creates the indexes every time the app starts. On a large
+collection an index build is slow, it holds up the rollout, and every new task
+races to run it.
+
+- **A `migrate` task runs first.** It creates the indexes and runs any data
+  migrations, then exits. If it fails, the deploy stops and the running
+  version keeps serving.
+- **The app starts without building indexes.** It only connects and
+  registers the document models.
+- **Expand/contract schema changes.** Old and new tasks run side by side
+  during a rollout, so a change never breaks the version still running:
+  1. Expand: add the new field or index.
+  2. Deploy code that reads both the old and the new shape.
+  3. Backfill the existing documents.
+  4. Contract: remove the old shape in a later release.
+
+### Rollout
+
+**CI pipeline.** It currently runs only pytest.
+
+- **Add quality checks.** Add `ruff`, `mypy` and `lint-imports` to
+  `.github/workflows/tests.yml`.
+- **Build once.** On merge to `main`, build the image, scan it with Trivy, and
+  push it to ECR tagged with the git SHA.
+- **Promote the same image.** It is deployed to staging first. After the
+  smoke tests pass, a manual approval promotes that same image to production.
+
+**ECS rolling update.**
+
+- **Keep full capacity.** Set `minimumHealthyPercent=100` and
+  `maximumPercent=200`. New tasks start next to the old ones and only receive
+  traffic once the readiness check passes. Old tasks are then drained.
+- **Automatic rollback.** The ECS deployment circuit breaker rolls back when
+  new tasks keep failing to become healthy. CloudWatch alarms on the 5xx rate
+  and latency also roll the deployment back.
+- **Manual rollback** means redeploying the previous git SHA's image.
+- **Graceful shutdown.** On SIGTERM, Uvicorn stops accepting connections and
+  finishes in-flight requests within the task's `stopTimeout`.
+
+### Artwork storage
+
+`LocalArtworkStorage` writes images to the task's own disk. Fargate disks are
+ephemeral and not shared between tasks, so images would be lost on every
+deploy and missing on every other task.
+
+- **S3 adapter.** Add an `S3ArtworkStorage` adapter behind the existing
+  `ArtworkStorageInterface` and wire it in `infrastructure/api/dependencies/`.
+  The domain doesn't change.
+- **CloudFront** serves the images from S3.
+- **Content-addressed keys.** Each image is stored under the sha256 of its
+  bytes. Artwork shared by many shows is stored once, and an image whose bytes
+  haven't changed skips palette extraction entirely.
+- **Palette extraction in a process pool.** `PillowColorPaletteExtractor` uses
+  `asyncio.to_thread`, which still competes for the GIL. A process pool keeps
+  that CPU work from ever slowing down async I/O.
+
+### Observability
+
+`Logger` prints plain-text lines, plus a rotating file outside containers.
+That's hard to search and can't be linked across requests.
+
+- **Structured JSON logs** go to stdout, and ECS ships them to CloudWatch
+  Logs. Every line carries the request and trace id.
+- **OpenTelemetry traces.** Instrument FastAPI, httpx and pymongo, and export
+  the traces through an AWS Distro for OpenTelemetry (ADOT) collector sidecar
+  to X-Ray. One request can then be followed through the API, iTunes, the
+  artwork download and the database.
