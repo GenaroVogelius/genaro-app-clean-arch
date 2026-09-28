@@ -3,7 +3,11 @@ from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from fastapi.testclient import TestClient
 
-from app.infrastructure.api.rate_limit import build_limiter, setup_rate_limiting
+from app.infrastructure.api.rate_limit import (
+    build_limiter,
+    rate_limit_exempt,
+    setup_rate_limiting,
+)
 
 pytestmark = pytest.mark.rate_limit
 
@@ -19,7 +23,8 @@ def client_for(enabled: bool = True) -> TestClient:
         enabled: Whether the limiter enforces the limit.
 
     Returns:
-        A client for an app with two JSON routes and a streaming route.
+        A client for an app with two JSON routes, a streaming route and a
+        route marked with rate_limit_exempt.
         Each client gets its own limiter, so no counts leak between tests.
     """
     app = FastAPI()
@@ -39,6 +44,11 @@ def client_for(enabled: bool = True) -> TestClient:
                 yield chunk
 
         return StreamingResponse(chunks(), media_type="text/csv")
+
+    @app.get("/health")
+    @rate_limit_exempt
+    async def health():
+        return {"status": "ok"}
 
     setup_rate_limiting(app, build_limiter(LIMIT, enabled))
     return TestClient(app)
@@ -87,6 +97,27 @@ def test_docs_routes_are_exempt_and_do_not_use_the_budget():
     assert client.get("/first").status_code == 200
     assert client.get("/first").status_code == 200
     assert client.get("/first").status_code == 429
+
+
+def test_marked_routes_are_exempt_and_do_not_use_the_budget():
+    client = client_for()
+
+    for _ in range(5):
+        assert client.get("/health").status_code == 200
+
+    assert client.get("/first").status_code == 200
+    assert client.get("/first").status_code == 200
+    assert client.get("/first").status_code == 429
+
+
+def test_marked_routes_answer_after_the_budget_is_spent():
+    client = client_for()
+
+    client.get("/first")
+    client.get("/first")
+    assert client.get("/first").status_code == 429
+
+    assert client.get("/health").status_code == 200
 
 
 def test_disabled_limiter_never_rejects():

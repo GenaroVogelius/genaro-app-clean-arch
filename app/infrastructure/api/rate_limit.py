@@ -1,9 +1,14 @@
+from collections.abc import Callable
+from typing import Any
+
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from slowapi import Limiter
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from slowapi.util import get_remote_address
+
+_EXEMPT_MARKER = "_rate_limit_exempt"
 
 
 def build_limiter(limit: str, enabled: bool) -> Limiter:
@@ -45,17 +50,36 @@ def rate_limit_exceeded_handler(
     )
 
 
+def rate_limit_exempt[F: Callable[..., Any]](endpoint: F) -> F:
+    """
+    Mark an endpoint so setup_rate_limiting keeps it out of the limit.
+
+    Apply it below the route decorator, so the router registers the marked
+    function. Meant for probes such as health checks, which an orchestrator
+    calls on a schedule and must never answer 429.
+
+    Args:
+        endpoint: The route function to exempt.
+
+    Returns:
+        The same function, marked.
+    """
+    setattr(endpoint, _EXEMPT_MARKER, True)
+    return endpoint
+
+
 def setup_rate_limiting(app: FastAPI, limiter: Limiter) -> None:
     """
-    Enforce the limiter on every route of the app except the docs routes.
+    Enforce the limiter on every route of the app except the docs routes and
+    the endpoints marked with rate_limit_exempt.
 
     Call it before adding CORSMiddleware, so CORS stays the outermost
     middleware: 429 responses get CORS headers and preflight requests are
     answered without counting against the limit.
 
     Args:
-        app: The app to protect. Its docs routes must already be registered,
-            which FastAPI does when the app is created.
+        app: The app to protect. Its routes must already be registered; FastAPI
+            registers the docs routes when the app is created.
         limiter: The limiter to enforce.
     """
     app.state.limiter = limiter
@@ -66,11 +90,14 @@ def setup_rate_limiting(app: FastAPI, limiter: Limiter) -> None:
     # Not SlowAPIASGIMiddleware: it re-sends the response start on every body
     # chunk, which breaks streaming responses such as the CSV export.
     app.add_middleware(SlowAPIMiddleware)
-    _exempt_docs_routes(app, limiter)
+    _exempt_routes(app, limiter)
 
 
-def _exempt_docs_routes(app: FastAPI, limiter: Limiter) -> None:
-    """Keep the OpenAPI schema, Swagger UI and ReDoc out of the limit."""
+def _exempt_routes(app: FastAPI, limiter: Limiter) -> None:
+    """
+    Keep the OpenAPI schema, Swagger UI, ReDoc and every endpoint marked with
+    rate_limit_exempt out of the limit.
+    """
     docs_paths = {
         app.openapi_url,
         app.docs_url,
@@ -79,5 +106,8 @@ def _exempt_docs_routes(app: FastAPI, limiter: Limiter) -> None:
     } - {None}
     for route in app.routes:
         endpoint = getattr(route, "endpoint", None)
-        if endpoint is not None and getattr(route, "path", None) in docs_paths:
+        if endpoint is None:
+            continue
+        is_docs = getattr(route, "path", None) in docs_paths
+        if is_docs or getattr(endpoint, _EXEMPT_MARKER, False):
             limiter.exempt(endpoint)

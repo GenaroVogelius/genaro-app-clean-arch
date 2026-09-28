@@ -24,6 +24,7 @@ from app.infrastructure.api.dependencies.podcasts import (
     IngestPodcastUseCaseDep,
     ListPodcastsUseCaseDep,
 )
+from app.infrastructure.api.rate_limit import rate_limit_exempt
 from app.infrastructure.api.schemas.health_schemas import HealthResponse
 from app.infrastructure.api.schemas.ingestion_summary_schemas import (
     IngestionSummaryResponse,
@@ -56,8 +57,10 @@ protected = [Depends(require_api_key)]
 
 
 # Registered before "/podcasts/{podcast_id}" so "health" is not taken as a
-# podcast id.
+# podcast id. Exempt from the rate limit: probes poll it on a schedule, and a
+# 429 would take a healthy instance out of rotation.
 @router.get("/podcasts/health", response_model=HealthResponse)
+@rate_limit_exempt
 async def health(response: Response, health_check: HealthCheckDep):
     """
     Report whether the podcasts service can reach its backing store.
