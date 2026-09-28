@@ -149,6 +149,8 @@ cp podman/local/.env.example podman/local/.env
 | `ALLOW_ORIGINS` | `*` | CORS allowed origin |
 | `AUTH` | `True` | API-key auth on/off. Set `False` only for local dev |
 | `API_KEY` | none | Value clients must send in the `X-API-Key` header |
+| `RATE_LIMIT` | `10/minute` | Requests each client IP may make across the whole API, e.g. `100/hour` |
+| `RATE_LIMIT_ENABLED` | `True` | Rate limiting on/off |
 
 Optional overrides (defaults in `app/config/settings.py`):
 `ITUNES_BASE_URL`, `ITUNES_TIMEOUT_SECONDS`, `PODCAST_INGEST_CONCURRENCY` (5),
@@ -191,6 +193,9 @@ but only if you don't also use Mode A. The container would then try to reach
   `X-API-Key`.
 - Every endpoint except `GET /api/podcasts/health` requires the API key when
   `AUTH=True`.
+- Each client IP gets `RATE_LIMIT` requests (10/minute by default) shared
+  across every endpoint, health included. Over it, the API answers 429 with a
+  `Retry-After` header. `/docs`, `/redoc` and `/openapi.json` don't count.
 
 ---
 
@@ -297,6 +302,14 @@ not in CI yet, so run them locally before pushing.
 - **API-key auth** uses `secrets.compare_digest` (constant time). If auth is
   enabled but no `API_KEY` is configured, every request is rejected instead of
   failing open.
+- **Rate limiting** (`infrastructure/api/rate_limit.py`, slowapi). One bucket
+  per client IP for the whole API (`application_limits`, not per-endpoint
+  `default_limits`). Counters live in memory: per process and reset on
+  restart, which is fine for the single uvicorn worker. Scaling out needs a
+  shared store (`storage_uri="redis://..."`). Behind a reverse proxy every
+  client would share the proxy's IP, so the key function would have to read
+  the `X-Forwarded-For` set by that proxy. It uses `SlowAPIMiddleware`, not `SlowAPIASGIMiddleware`,
+  because the ASGI one breaks streaming responses like the CSV export.
 
 ---
 

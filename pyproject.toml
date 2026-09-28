@@ -101,6 +101,7 @@ forbidden_modules = [
     "email_validator",
     "fastapi",
     "httpx",
+    "limits",
     "motor",
     "pydantic_settings",
     "pymongo",

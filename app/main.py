@@ -5,13 +5,11 @@ import httpx
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from slowapi import Limiter
-from slowapi.errors import RateLimitExceeded
-from slowapi.util import get_remote_address
 
 from app.config.settings import Settings
 from app.domain.enums.enums import DatabaseTypes
 from app.infrastructure.api.podcast_routes import router as podcast_router
+from app.infrastructure.api.rate_limit import build_limiter, setup_rate_limiting
 from app.infrastructure.db.main import (
     close_database_connections,
     initialize_databases,
@@ -24,9 +22,6 @@ logging.getLogger("uvicorn").setLevel(logging.INFO)
 logging.getLogger("uvicorn.access").setLevel(logging.INFO)
 
 settings = Settings()
-
-# Initialize rate limiter (must be before app creation since it's used in lifespan)
-limiter = Limiter(key_func=get_remote_address)
 
 DATABASE_TYPES = [DatabaseTypes.MONGODB]
 
@@ -67,12 +62,9 @@ app = FastAPI(
 
 app.include_router(podcast_router, prefix=settings.API_PREFIX, tags=["podcasts"])
 
-app.state.limiter = limiter
-app.add_exception_handler(
-    RateLimitExceeded,
-    lambda request, exc: JSONResponse(
-        status_code=429, content={"error": "Rate limit exceeded", "status_code": 429}
-    ),
+# Before CORS, so CORS stays the outermost middleware.
+setup_rate_limiting(
+    app, build_limiter(settings.RATE_LIMIT, settings.RATE_LIMIT_ENABLED)
 )
 
 # CORS Configuration

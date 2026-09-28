@@ -1,7 +1,8 @@
 from pathlib import Path
 
 from dotenv import load_dotenv
-from pydantic import Field
+from limits import parse_many
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from app.infrastructure.utils.decorators.singleton import singleton
@@ -56,6 +57,18 @@ class Settings(BaseSettings):
 
     # API settings
     API_PREFIX: str = "/api"
+
+    # Rate limit shared by every endpoint per client IP (docs routes exempt),
+    # in slowapi/limits notation, e.g. "10/minute", "100/hour".
+    RATE_LIMIT: str = "10/minute"
+    RATE_LIMIT_ENABLED: bool = True
+
+    @field_validator("RATE_LIMIT")
+    @classmethod
+    def validate_rate_limit(cls, value: str) -> str:
+        """Fail at startup on a malformed limit instead of on every request."""
+        parse_many(value)
+        return value
 
     # API key authentication (header X-API-Key). Disable only for local dev.
     AUTH: bool = True
