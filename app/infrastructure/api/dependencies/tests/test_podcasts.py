@@ -5,7 +5,7 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from app.config.settings import Settings
+from app.config.settings import get_settings
 from app.domain.common import Status, StatusType
 from app.domain.ingestion import PodcastArtworkResolver
 from app.domain.interfaces.logger import LoggerInterface
@@ -123,7 +123,7 @@ async def test_artwork_resolver_is_built_once_per_client(
 async def test_ingest_podcasts_use_case_uses_configured_concurrency(
     http_client: httpx.AsyncClient,
 ) -> None:
-    settings = Settings().model_copy(update={"PODCAST_INGEST_CONCURRENCY": 7})
+    settings = get_settings().model_copy(update={"PODCAST_INGEST_CONCURRENCY": 7})
 
     use_case = podcasts.get_ingest_podcasts_use_case(
         provider=FakeSearchProvider(),
@@ -137,7 +137,7 @@ async def test_ingest_podcasts_use_case_uses_configured_concurrency(
 
 
 def test_export_podcasts_use_case_uses_configured_batch_size() -> None:
-    settings = Settings().model_copy(update={"PODCAST_EXPORT_BATCH_SIZE": 250})
+    settings = get_settings().model_copy(update={"PODCAST_EXPORT_BATCH_SIZE": 250})
     repository = FakeRepository()
 
     use_case = podcasts.get_export_podcasts_use_case(

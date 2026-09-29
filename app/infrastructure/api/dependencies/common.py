@@ -4,21 +4,10 @@ from typing import Annotated
 import httpx
 from fastapi import Depends, Request, Security
 
-from app.config.settings import Settings
+from app.config.settings import Settings, get_settings
 from app.domain.interfaces.logger import LoggerInterface
 from app.infrastructure.api.security import API_KEY_HEADER, ApiKeyAuth
 from app.infrastructure.logger import logger
-
-
-@lru_cache
-def get_settings() -> Settings:
-    """
-    Get the app settings. The only place the API layer reads them from.
-
-    Returns:
-        The settings, built once and reused for the life of the process.
-    """
-    return Settings()
 
 
 def get_logger() -> LoggerInterface:

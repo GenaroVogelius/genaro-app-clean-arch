@@ -82,6 +82,13 @@ the stdlib and `pydantic`. `lint-imports` enforces this through the contracts
 in `pyproject.toml` (`[tool.importlinter]`). Adapters are wired to ports in
 `app/infrastructure/api/dependencies/`, which is the composition root.
 
+To see the general architecture of the project, explore the import graph
+interactively in the browser:
+
+```bash
+uv run import-linter explore app
+```
+
 ### Ingestion flow
 
 ```
@@ -216,6 +223,7 @@ uv run pytest --cov=app              # with coverage
 
 uv run mypy app                      # type checking
 uv run lint-imports                  # architecture contracts (domain ↛ infrastructure)
+uv run import-linter explore app     # interactive import graph in the browser
 uv run ruff check app                # lint
 uv run ruff format --check app       # formatting (drop --check to apply)
 ```

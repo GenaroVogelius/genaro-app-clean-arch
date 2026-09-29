@@ -2,7 +2,7 @@ import asyncio
 from pathlib import Path, PurePosixPath
 from urllib.parse import urlparse
 
-from app.config.settings import Settings
+from app.config.settings import get_settings
 from app.domain.ingestion import ArtworkUnavailableError
 from app.domain.interfaces.storage import ArtworkStorageInterface
 
@@ -19,7 +19,7 @@ class LocalArtworkStorage(ArtworkStorageInterface):
             base_dir: Directory where images are saved.
                 Defaults to the ARTWORK_STORAGE_DIR setting.
         """
-        self._base_dir = Path(base_dir or Settings().ARTWORK_STORAGE_DIR)
+        self._base_dir = Path(base_dir or get_settings().ARTWORK_STORAGE_DIR)
 
     async def store(self, podcast_id: int, content: bytes, source_url: str) -> str:
         """

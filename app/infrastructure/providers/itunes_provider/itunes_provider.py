@@ -1,6 +1,6 @@
 import httpx
 
-from app.config.settings import Settings
+from app.config.settings import get_settings
 from app.domain.common import ExternalServiceError
 from app.domain.interfaces.mapper import MapperInterface
 from app.domain.interfaces.providers.podcasts import (
@@ -45,7 +45,7 @@ class ITunesProvider(PodcastLookupProviderInterface, PodcastSearchProviderInterf
             transport: Optional httpx transport of the per-request client, used
                 by tests to stub iTunes. Ignored when a client is given.
         """
-        settings = Settings()
+        settings = get_settings()
         self._mapper = mapper or ITunesMapper()
         self._client = client
         self._transport = transport

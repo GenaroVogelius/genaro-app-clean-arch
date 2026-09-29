@@ -1,6 +1,6 @@
 import httpx
 
-from app.config.settings import Settings
+from app.config.settings import get_settings
 from app.domain.ingestion import ArtworkUnavailableError
 from app.domain.interfaces.providers.artwork import ArtworkDownloaderInterface
 from app.infrastructure.providers.http_client import use_http_client
@@ -23,7 +23,7 @@ class HttpArtworkDownloader(ArtworkDownloaderInterface):
         """
         self._client = client
         self._transport = transport
-        self._timeout = Settings().ARTWORK_TIMEOUT_SECONDS
+        self._timeout = get_settings().ARTWORK_TIMEOUT_SECONDS
 
     async def download(self, url: str) -> bytes:
         """

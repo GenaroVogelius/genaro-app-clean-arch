@@ -7,10 +7,10 @@ from pymongo import AsyncMongoClient
 from pymongo.asynchronous.database import AsyncDatabase
 from pymongo.errors import ServerSelectionTimeoutError
 
-from app.config.settings import Settings
+from app.config.settings import get_settings
 from app.infrastructure.logger import logger
 
-settings = Settings()
+settings = get_settings()
 
 
 class Database:

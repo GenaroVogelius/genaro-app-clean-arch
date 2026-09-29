@@ -86,6 +86,18 @@ forbidden_modules = [
     "app.infrastructure",
 ]
 
+# Config sits below infrastructure: infrastructure reads settings, never the
+# other way around.
+[[tool.importlinter.contracts]]
+name = "Config must not import from infrastructure"
+type = "forbidden"
+source_modules = [
+    "app.config",
+]
+forbidden_modules = [
+    "app.infrastructure",
+]
+
 # The domain may only use the stdlib and pydantic. Anything that talks to the
 # outside world (HTTP, databases, frameworks, settings) is infrastructure.
 [[tool.importlinter.contracts]]

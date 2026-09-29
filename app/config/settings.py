@@ -1,11 +1,10 @@
+from functools import lru_cache
 from pathlib import Path
 
 from dotenv import load_dotenv
 from limits import parse_many
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
-from app.infrastructure.utils.decorators.singleton import singleton
 
 load_dotenv()
 podman_local_dir = Path(__file__).parent.parent.parent / "podman" / "local"
@@ -23,7 +22,6 @@ env_files = [
 ]
 
 
-@singleton
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=env_files,
@@ -89,3 +87,14 @@ class Settings(BaseSettings):
     ARTWORK_STORAGE_DIR: str = "media/artwork"
     ARTWORK_TIMEOUT_SECONDS: float = 10.0
     ARTWORK_PALETTE_SIZE: int = 5
+
+
+@lru_cache
+def get_settings() -> Settings:
+    """
+    Get the app settings, the single entry point every layer reads them from.
+
+    Returns:
+        The settings, built once and reused for the life of the process.
+    """
+    return Settings()

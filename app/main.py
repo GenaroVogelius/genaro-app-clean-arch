@@ -6,7 +6,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.config.settings import Settings
+from app.config.settings import get_settings
 from app.domain.common import DatabaseTypes
 from app.infrastructure.api.podcast_routes import router as podcast_router
 from app.infrastructure.api.rate_limit import build_limiter, setup_rate_limiting
@@ -21,7 +21,7 @@ logging.getLogger("fastapi").setLevel(logging.INFO)
 logging.getLogger("uvicorn").setLevel(logging.INFO)
 logging.getLogger("uvicorn.access").setLevel(logging.INFO)
 
-settings = Settings()
+settings = get_settings()
 
 DATABASE_TYPES = [DatabaseTypes.MONGODB]
 

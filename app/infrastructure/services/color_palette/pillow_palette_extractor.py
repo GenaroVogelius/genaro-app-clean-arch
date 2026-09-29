@@ -4,7 +4,7 @@ from typing import cast
 
 from PIL import Image, UnidentifiedImageError
 
-from app.config.settings import Settings
+from app.config.settings import get_settings
 from app.domain.ingestion import ArtworkUnavailableError
 from app.domain.interfaces.services import ColorPaletteExtractorInterface
 from app.domain.podcast.aggregate import PaletteColor
@@ -22,7 +22,7 @@ class PillowColorPaletteExtractor(ColorPaletteExtractorInterface):
             size: Maximum number of colors in the palette.
                 Defaults to the ARTWORK_PALETTE_SIZE setting.
         """
-        self._size = size or Settings().ARTWORK_PALETTE_SIZE
+        self._size = size or get_settings().ARTWORK_PALETTE_SIZE
 
     async def extract(self, content: bytes) -> list[PaletteColor]:
         """
