@@ -7,15 +7,8 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from app.domain.aggregates.podcast import Artwork, PaletteColor, Podcast
-from app.domain.exceptions import (
-    ArtworkUnavailableError,
-    ExternalServiceError,
-    NotAPodcastError,
-    PodcastNotFoundError,
-    PodcastPersistenceError,
-    PodcastRetrievalError,
-)
+from app.domain.common import ExternalServiceError, Status, StatusType
+from app.domain.ingestion import ArtworkUnavailableError, PodcastArtworkResolver
 from app.domain.interfaces.logger import LoggerInterface
 from app.domain.interfaces.providers.artwork import ArtworkDownloaderInterface
 from app.domain.interfaces.providers.podcasts import (
@@ -25,12 +18,19 @@ from app.domain.interfaces.providers.podcasts import (
 from app.domain.interfaces.repositories.podcasts import PodcastsRepositoryInterface
 from app.domain.interfaces.services import ColorPaletteExtractorInterface
 from app.domain.interfaces.storage import ArtworkStorageInterface
-from app.domain.services.podcast_artwork import PodcastArtworkResolver
-from app.domain.simple_entities.podcast_list_criteria import PodcastListCriteria
-from app.domain.simple_entities.podcast_page import PodcastPage
-from app.domain.simple_entities.podcast_search_criteria import PodcastSearchCriteria
-from app.domain.simple_entities.podcast_search_result import PodcastSearchResult
-from app.domain.simple_entities.status import Status, StatusType
+from app.domain.podcast.aggregate import Artwork, PaletteColor, Podcast
+from app.domain.podcast.exceptions import (
+    NotAPodcastError,
+    PodcastNotFoundError,
+    PodcastPersistenceError,
+    PodcastRetrievalError,
+)
+from app.domain.podcast.queries import (
+    PodcastListCriteria,
+    PodcastPage,
+    PodcastSearchCriteria,
+    PodcastSearchResult,
+)
 from app.domain.use_cases.podcast.export_podcasts.export_podcasts_use_case import (
     ExportPodcastsUseCase,
 )

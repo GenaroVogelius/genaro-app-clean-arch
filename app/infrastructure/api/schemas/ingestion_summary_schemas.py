@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from app.domain.simple_entities.ingestion_summary import IngestionSummary
+from app.domain.ingestion import IngestionSummary
 
 
 class IngestionSummaryResponse(BaseModel):

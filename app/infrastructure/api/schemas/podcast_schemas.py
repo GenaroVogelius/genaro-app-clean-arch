@@ -2,8 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-from app.domain.aggregates.podcast import Artwork, Explicitness, PaletteColor, Podcast
-from app.domain.simple_entities.podcast_page import PodcastPage
+from app.domain.podcast.aggregate import Artwork, Explicitness, PaletteColor, Podcast
+from app.domain.podcast.queries import PodcastPage
 
 
 class PaletteColorResponse(BaseModel):

@@ -2,7 +2,7 @@ import csv
 import io
 from collections.abc import Iterable
 
-from app.domain.aggregates.podcast import Artwork, Podcast
+from app.domain.podcast.aggregate import Artwork, Podcast
 
 # Separates the colors of the palette, and each color's hex from its proportion.
 PALETTE_COLOR_SEPARATOR = "|"

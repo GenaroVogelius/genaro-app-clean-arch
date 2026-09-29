@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from app.domain.aggregates.podcast import Podcast
+from app.domain.podcast.aggregate import Podcast
 
 
 class PodcastPage(BaseModel):

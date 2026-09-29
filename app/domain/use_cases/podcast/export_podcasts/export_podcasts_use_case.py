@@ -1,7 +1,7 @@
 from collections.abc import AsyncIterator
 
-from app.domain.aggregates.podcast import Podcast
 from app.domain.interfaces.repositories.podcasts import PodcastsExporterInterface
+from app.domain.podcast.aggregate import Podcast
 
 DEFAULT_BATCH_SIZE = 500
 

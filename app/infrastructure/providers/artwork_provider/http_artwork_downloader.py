@@ -1,7 +1,7 @@
 import httpx
 
 from app.config.settings import Settings
-from app.domain.exceptions import ArtworkUnavailableError
+from app.domain.ingestion import ArtworkUnavailableError
 from app.domain.interfaces.providers.artwork import ArtworkDownloaderInterface
 from app.infrastructure.providers.http_client import use_http_client
 

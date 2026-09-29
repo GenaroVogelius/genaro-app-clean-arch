@@ -1,10 +1,10 @@
 import httpx
 import pytest
 
-from app.domain.aggregates.podcast import Podcast
-from app.domain.exceptions import ExternalServiceError, NotAPodcastError
-from app.domain.simple_entities.podcast_search_criteria import PodcastSearchCriteria
-from app.domain.simple_entities.podcast_search_result import PodcastSearchResult
+from app.domain.common import ExternalServiceError
+from app.domain.podcast.aggregate import Podcast
+from app.domain.podcast.exceptions import NotAPodcastError
+from app.domain.podcast.queries import PodcastSearchCriteria, PodcastSearchResult
 from app.infrastructure.logger import logger
 from app.infrastructure.providers.itunes_provider.itunes_provider import ITunesProvider
 from app.infrastructure.utils.testing.vcr import get_vcr_for_test

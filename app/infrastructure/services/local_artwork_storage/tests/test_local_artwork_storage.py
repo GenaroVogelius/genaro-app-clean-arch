@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from app.domain.exceptions import ArtworkUnavailableError
+from app.domain.ingestion import ArtworkUnavailableError
 from app.infrastructure.services.local_artwork_storage.local_artwork_storage import (
     LocalArtworkStorage,
 )

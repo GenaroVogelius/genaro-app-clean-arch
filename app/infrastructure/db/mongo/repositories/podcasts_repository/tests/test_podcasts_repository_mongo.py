@@ -4,10 +4,10 @@ import pytest
 from beanie import init_beanie
 from mongomock_motor import AsyncMongoMockClient
 
-from app.domain.aggregates.podcast import Explicitness, Podcast
-from app.domain.exceptions import PodcastRetrievalError
-from app.domain.simple_entities.podcast_list_criteria import PodcastListCriteria
-from app.domain.simple_entities.status import StatusType
+from app.domain.common import StatusType
+from app.domain.podcast.aggregate import Explicitness, Podcast
+from app.domain.podcast.exceptions import PodcastRetrievalError
+from app.domain.podcast.queries import PodcastListCriteria
 from app.infrastructure.db.mongo.repositories.podcasts_repository.podcast_document import (  # noqa: E501
     PodcastDocument,
 )

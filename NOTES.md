@@ -61,8 +61,9 @@ questions as you go. Then use this file as a reference:
                                  ▼
   ┌────────────────────────── domain ──────────────────────────┐
   │ use_cases/   Get / List / Export / Ingest one / many       │
-  │ services/    PodcastArtworkResolver                        │
-  │ aggregates/  Podcast, Artwork   simple_entities/  Status...│
+  │ podcast/     aggregate/ (Podcast, Artwork), queries/       │
+  │ ingestion/   IngestionSummary, PodcastArtworkResolver      │
+  │ common/      Status, DatabaseTypes                         │
   │ interfaces/  PORTS (repositories, providers, storage,      │
   │              services, logger, mapper)                     │
   └──────────────────────────────▲─────────────────────────────┘
@@ -108,13 +109,16 @@ app/
 ├── main.py              # FastAPI app, lifespan (Mongo + shared httpx client), CORS, error handlers
 ├── config/settings.py   # Pydantic Settings (env vars, env files)
 ├── domain/              # Business core, stdlib + pydantic only
-│   ├── aggregates/      # Podcast, Artwork, enums
-│   ├── simple_entities/ # Status, criteria, pages, summaries (value objects)
+│   ├── podcast/         # Modules grouped by domain concept
+│   │   ├── aggregate/   # Podcast (root), Artwork, PaletteColor, Explicitness
+│   │   ├── queries/     # Criteria, pages and search results (not part of the aggregate)
+│   │   └── exceptions.py # Podcast errors (not found, not a podcast, persistence, retrieval)
+│   ├── ingestion/       # IngestionSummary, ArtworkResolution, PodcastArtworkResolver,
+│   │                    # ArtworkUnavailableError
+│   ├── common/          # Status, DatabaseTypes, ExternalServiceError
 │   ├── interfaces/      # Ports: repositories, providers, storage, services, logger, mapper
-│   ├── services/        # Domain services (PodcastArtworkResolver)
 │   ├── use_cases/       # One folder per use case, test next to it
-│   ├── exceptions/      # Domain errors mapped to HTTP codes in the routes
-│   ├── enums/  validations/
+│   ├── validations/
 └── infrastructure/      # Adapters
     ├── api/             # Routes, schemas, dependencies (DI), security (API key)
     ├── db/mongo/        # Connection + repositories/<name>_repository/{*_document,*_mapper,*_repository}.py
@@ -321,8 +325,9 @@ not in CI yet, so run them locally before pushing.
 Follow the podcast slice as the reference implementation. The linked skills in
 `.rulesync/skills/` spell out each rule in detail.
 
-1. **Domain model:** add the aggregate in `domain/aggregates/` or value objects
-   in `domain/simple_entities/` (pydantic only).
+1. **Domain model:** group it by concept under `domain/<concept>/` (pydantic
+   only): the aggregate root and what it owns in `aggregate/`, related criteria
+   and results in `queries/`. Generic types go in `domain/common/`.
 2. **Port:** add the interface in `domain/interfaces/<kind>/`. Write methods on
    repositories return `Status`
    ([repository-writes-return-status](.rulesync/skills/repository-writes-return-status/SKILL.md)).

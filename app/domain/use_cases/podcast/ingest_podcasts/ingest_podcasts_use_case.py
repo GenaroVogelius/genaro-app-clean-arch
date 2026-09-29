@@ -1,14 +1,13 @@
 import asyncio
 from collections import Counter
 
-from app.domain.aggregates.podcast import Podcast
+from app.domain.common import Status, StatusType
+from app.domain.ingestion import IngestionSummary, PodcastArtworkResolver
 from app.domain.interfaces.logger import LoggerInterface
 from app.domain.interfaces.providers.podcasts import PodcastSearchProviderInterface
 from app.domain.interfaces.repositories.podcasts import PodcastsRepositoryInterface
-from app.domain.services.podcast_artwork import PodcastArtworkResolver
-from app.domain.simple_entities.ingestion_summary import IngestionSummary
-from app.domain.simple_entities.podcast_search_criteria import PodcastSearchCriteria
-from app.domain.simple_entities.status import Status, StatusType
+from app.domain.podcast.aggregate import Podcast
+from app.domain.podcast.queries import PodcastSearchCriteria
 
 DEFAULT_MAX_CONCURRENCY = 5
 

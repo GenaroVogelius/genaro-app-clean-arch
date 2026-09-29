@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from app.domain.aggregates.podcast import Artwork
+from app.domain.podcast.aggregate import Artwork
 
 
 class ArtworkResolution(BaseModel):

@@ -1,0 +1,11 @@
+podman/local/volumes
+.git
+.venv
+__pycache__
+*.pyc
+.mypy_cache
+.pytest_cache
+.ruff_cache
+.import_linter_cache
+genaro_app.egg-info
+logs

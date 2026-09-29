@@ -1,9 +1,8 @@
 from abc import ABC, abstractmethod
 
-from app.domain.aggregates.podcast import Podcast
-from app.domain.simple_entities.podcast_list_criteria import PodcastListCriteria
-from app.domain.simple_entities.podcast_page import PodcastPage
-from app.domain.simple_entities.status import Status
+from app.domain.common import Status
+from app.domain.podcast.aggregate import Podcast
+from app.domain.podcast.queries import PodcastListCriteria, PodcastPage
 
 
 class PodcastsReaderInterface(ABC):

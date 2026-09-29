@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from app.domain.simple_entities.status import Status, StatusType
+from app.domain.common import Status, StatusType
 
 
 class StatusResponse(BaseModel):

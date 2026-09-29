@@ -1,6 +1,6 @@
-from app.domain.aggregates.podcast import Podcast
-from app.domain.exceptions import PodcastNotFoundError
 from app.domain.interfaces.repositories.podcasts import PodcastsReaderInterface
+from app.domain.podcast.aggregate import Podcast
+from app.domain.podcast.exceptions import PodcastNotFoundError
 
 
 class GetPodcastUseCase:

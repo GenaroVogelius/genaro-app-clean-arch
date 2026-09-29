@@ -1,9 +1,9 @@
-from app.domain.aggregates.podcast import Podcast
-from app.domain.exceptions import ArtworkUnavailableError
+from app.domain.ingestion.artwork_resolution import ArtworkResolution
+from app.domain.ingestion.exceptions import ArtworkUnavailableError
 from app.domain.interfaces.providers.artwork import ArtworkDownloaderInterface
 from app.domain.interfaces.services import ColorPaletteExtractorInterface
 from app.domain.interfaces.storage import ArtworkStorageInterface
-from app.domain.simple_entities.artwork_resolution import ArtworkResolution
+from app.domain.podcast.aggregate import Podcast
 
 
 class PodcastArtworkResolver:

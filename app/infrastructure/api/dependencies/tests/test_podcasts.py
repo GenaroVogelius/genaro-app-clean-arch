@@ -6,16 +6,18 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from app.config.settings import Settings
-from app.domain.aggregates.podcast import Podcast
+from app.domain.common import Status, StatusType
+from app.domain.ingestion import PodcastArtworkResolver
 from app.domain.interfaces.logger import LoggerInterface
 from app.domain.interfaces.providers.podcasts import PodcastSearchProviderInterface
 from app.domain.interfaces.repositories.podcasts import PodcastsRepositoryInterface
-from app.domain.services.podcast_artwork import PodcastArtworkResolver
-from app.domain.simple_entities.podcast_list_criteria import PodcastListCriteria
-from app.domain.simple_entities.podcast_page import PodcastPage
-from app.domain.simple_entities.podcast_search_criteria import PodcastSearchCriteria
-from app.domain.simple_entities.podcast_search_result import PodcastSearchResult
-from app.domain.simple_entities.status import Status, StatusType
+from app.domain.podcast.aggregate import Podcast
+from app.domain.podcast.queries import (
+    PodcastListCriteria,
+    PodcastPage,
+    PodcastSearchCriteria,
+    PodcastSearchResult,
+)
 from app.infrastructure.api.dependencies import podcasts
 from app.infrastructure.providers.artwork_provider.http_artwork_downloader import (
     HttpArtworkDownloader,

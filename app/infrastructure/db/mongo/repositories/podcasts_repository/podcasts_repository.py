@@ -1,13 +1,12 @@
 import re
 from typing import Any
 
-from app.domain.aggregates.podcast import Podcast
-from app.domain.exceptions import PodcastRetrievalError
+from app.domain.common import Status, StatusType
 from app.domain.interfaces.mapper import MapperInterface
 from app.domain.interfaces.repositories.podcasts import PodcastsRepositoryInterface
-from app.domain.simple_entities.podcast_list_criteria import PodcastListCriteria
-from app.domain.simple_entities.podcast_page import PodcastPage
-from app.domain.simple_entities.status import Status, StatusType
+from app.domain.podcast.aggregate import Podcast
+from app.domain.podcast.exceptions import PodcastRetrievalError
+from app.domain.podcast.queries import PodcastListCriteria, PodcastPage
 from app.infrastructure.db.mongo.repositories.podcasts_repository.podcast_document import (  # noqa: E501
     PodcastDocument,
 )

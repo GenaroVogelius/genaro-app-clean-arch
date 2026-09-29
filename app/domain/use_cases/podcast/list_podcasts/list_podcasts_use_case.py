@@ -1,6 +1,5 @@
 from app.domain.interfaces.repositories.podcasts import PodcastsListerInterface
-from app.domain.simple_entities.podcast_list_criteria import PodcastListCriteria
-from app.domain.simple_entities.podcast_page import PodcastPage
+from app.domain.podcast.queries import PodcastListCriteria, PodcastPage
 
 
 class ListPodcastsUseCase:

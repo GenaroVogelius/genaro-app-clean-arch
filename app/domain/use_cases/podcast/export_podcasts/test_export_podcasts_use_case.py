@@ -1,8 +1,8 @@
 import pytest
 
-from app.domain.aggregates.podcast import Podcast
-from app.domain.exceptions import PodcastRetrievalError
 from app.domain.interfaces.repositories.podcasts import PodcastsExporterInterface
+from app.domain.podcast.aggregate import Podcast
+from app.domain.podcast.exceptions import PodcastRetrievalError
 from app.domain.use_cases.podcast.export_podcasts.export_podcasts_use_case import (
     ExportPodcastsUseCase,
 )

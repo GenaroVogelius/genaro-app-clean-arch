@@ -3,7 +3,7 @@ from datetime import datetime
 from beanie import Document, Indexed
 from pydantic import BaseModel
 
-from app.domain.aggregates.podcast import Explicitness
+from app.domain.podcast.aggregate import Explicitness
 
 
 class PaletteColorEmbedded(BaseModel):

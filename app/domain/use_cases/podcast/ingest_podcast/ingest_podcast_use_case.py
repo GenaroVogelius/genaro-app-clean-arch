@@ -1,9 +1,9 @@
-from app.domain.exceptions import PodcastNotFoundError, PodcastPersistenceError
+from app.domain.common import Status, StatusType
+from app.domain.ingestion import PodcastArtworkResolver
 from app.domain.interfaces.logger import LoggerInterface
 from app.domain.interfaces.providers.podcasts import PodcastLookupProviderInterface
 from app.domain.interfaces.repositories.podcasts import PodcastsRepositoryInterface
-from app.domain.services.podcast_artwork import PodcastArtworkResolver
-from app.domain.simple_entities.status import Status, StatusType
+from app.domain.podcast.exceptions import PodcastNotFoundError, PodcastPersistenceError
 
 
 class IngestPodcastUseCase:

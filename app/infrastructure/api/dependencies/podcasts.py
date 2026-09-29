@@ -5,12 +5,12 @@ from typing import Annotated
 import httpx
 from fastapi import Depends
 
+from app.domain.ingestion import PodcastArtworkResolver
 from app.domain.interfaces.providers.podcasts import (
     PodcastLookupProviderInterface,
     PodcastSearchProviderInterface,
 )
 from app.domain.interfaces.repositories.podcasts import PodcastsRepositoryInterface
-from app.domain.services.podcast_artwork import PodcastArtworkResolver
 from app.domain.use_cases.podcast.export_podcasts.export_podcasts_use_case import (
     ExportPodcastsUseCase,
 )

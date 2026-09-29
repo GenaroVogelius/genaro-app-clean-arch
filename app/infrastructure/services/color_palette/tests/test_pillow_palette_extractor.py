@@ -3,7 +3,7 @@ from io import BytesIO
 import pytest
 from PIL import Image
 
-from app.domain.exceptions import ArtworkUnavailableError
+from app.domain.ingestion import ArtworkUnavailableError
 from app.infrastructure.services.color_palette.pillow_palette_extractor import (
     PillowColorPaletteExtractor,
 )

@@ -3,7 +3,7 @@ Database initialization module.
 This module provides database-agnostic initialization functions.
 """
 
-from app.domain.enums.enums import DatabaseTypes
+from app.domain.common import DatabaseTypes
 from app.infrastructure.logger import logger
 
 # Global variable to store the FastAPI app instance

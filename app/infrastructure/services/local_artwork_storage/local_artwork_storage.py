@@ -3,7 +3,7 @@ from pathlib import Path, PurePosixPath
 from urllib.parse import urlparse
 
 from app.config.settings import Settings
-from app.domain.exceptions import ArtworkUnavailableError
+from app.domain.ingestion import ArtworkUnavailableError
 from app.domain.interfaces.storage import ArtworkStorageInterface
 
 # Used when the artwork URL has no file extension.

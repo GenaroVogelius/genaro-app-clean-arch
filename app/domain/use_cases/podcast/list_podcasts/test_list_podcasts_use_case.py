@@ -1,9 +1,8 @@
 import pytest
 
-from app.domain.aggregates.podcast import Podcast
 from app.domain.interfaces.repositories.podcasts import PodcastsListerInterface
-from app.domain.simple_entities.podcast_list_criteria import PodcastListCriteria
-from app.domain.simple_entities.podcast_page import PodcastPage
+from app.domain.podcast.aggregate import Podcast
+from app.domain.podcast.queries import PodcastListCriteria, PodcastPage
 from app.domain.use_cases.podcast.list_podcasts.list_podcasts_use_case import (
     ListPodcastsUseCase,
 )

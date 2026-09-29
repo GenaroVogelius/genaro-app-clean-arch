@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from app.domain.aggregates.podcast import PaletteColor
+from app.domain.podcast.aggregate import PaletteColor
 
 
 class ColorPaletteExtractorInterface(ABC):

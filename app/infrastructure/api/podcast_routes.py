@@ -5,16 +5,14 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, Response, status
 from fastapi.responses import StreamingResponse
 
-from app.domain.exceptions import (
-    ExternalServiceError,
+from app.domain.common import ExternalServiceError, StatusType
+from app.domain.podcast.exceptions import (
     NotAPodcastError,
     PodcastNotFoundError,
     PodcastPersistenceError,
     PodcastRetrievalError,
 )
-from app.domain.simple_entities.podcast_list_criteria import PodcastListCriteria
-from app.domain.simple_entities.podcast_search_criteria import PodcastSearchCriteria
-from app.domain.simple_entities.status import StatusType
+from app.domain.podcast.queries import PodcastListCriteria, PodcastSearchCriteria
 from app.infrastructure.api.dependencies.common import LoggerDep, require_api_key
 from app.infrastructure.api.dependencies.podcasts import (
     ExportPodcastsUseCaseDep,

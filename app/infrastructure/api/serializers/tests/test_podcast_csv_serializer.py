@@ -2,7 +2,7 @@ import csv
 import io
 from datetime import UTC, datetime
 
-from app.domain.aggregates.podcast import Explicitness, Podcast
+from app.domain.podcast.aggregate import Explicitness, Podcast
 from app.infrastructure.api.serializers import PodcastCsvSerializer
 
 

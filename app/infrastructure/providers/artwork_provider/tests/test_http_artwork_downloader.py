@@ -1,7 +1,7 @@
 import httpx
 import pytest
 
-from app.domain.exceptions import ArtworkUnavailableError
+from app.domain.ingestion import ArtworkUnavailableError
 from app.infrastructure.providers.artwork_provider.http_artwork_downloader import (
     HttpArtworkDownloader,
 )

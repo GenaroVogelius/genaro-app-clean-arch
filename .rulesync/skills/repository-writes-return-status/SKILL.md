@@ -1,6 +1,6 @@
 ---
 name: repository-writes-return-status
-description: Ensures repository port methods that persist or mutate data return the domain `Status` Pydantic model (`app.domain.simple_entities.status.Status`), not a bare `StatusType` enum. Use when adding or editing repository interfaces under `app/domain/interfaces/repositories/`, their implementations under `app/infrastructure/**/repositories/`, or tests that assert outcomes of insert/update/delete/upsert/write flows.
+description: Ensures repository port methods that persist or mutate data return the domain `Status` Pydantic model (`app.domain.common.status.Status`), not a bare `StatusType` enum. Use when adding or editing repository interfaces under `app/domain/interfaces/repositories/`, their implementations under `app/infrastructure/**/repositories/`, or tests that assert outcomes of insert/update/delete/upsert/write flows.
 targets:
   - '*'
 ---
@@ -15,7 +15,7 @@ For **repository interfaces** (`app/domain/interfaces/repositories/**/*.py`) and
 Use:
 
 ```python
-from app.domain.simple_entities.status import Status, StatusType
+from app.domain.common import Status, StatusType
 ```
 
 - Success: `Status(status=StatusType.SUCCESS)` (optional `message` if useful).

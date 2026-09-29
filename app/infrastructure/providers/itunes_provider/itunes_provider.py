@@ -1,15 +1,15 @@
 import httpx
 
 from app.config.settings import Settings
-from app.domain.aggregates.podcast import Podcast
-from app.domain.exceptions import ExternalServiceError, NotAPodcastError
+from app.domain.common import ExternalServiceError
 from app.domain.interfaces.mapper import MapperInterface
 from app.domain.interfaces.providers.podcasts import (
     PodcastLookupProviderInterface,
     PodcastSearchProviderInterface,
 )
-from app.domain.simple_entities.podcast_search_criteria import PodcastSearchCriteria
-from app.domain.simple_entities.podcast_search_result import PodcastSearchResult
+from app.domain.podcast.aggregate import Podcast
+from app.domain.podcast.exceptions import NotAPodcastError
+from app.domain.podcast.queries import PodcastSearchCriteria, PodcastSearchResult
 from app.infrastructure.logger import logger
 from app.infrastructure.providers.http_client import use_http_client
 from app.infrastructure.providers.itunes_provider.mapper.itunes_mapper import (

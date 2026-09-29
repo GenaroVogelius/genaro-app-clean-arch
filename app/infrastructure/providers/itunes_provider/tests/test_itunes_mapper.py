@@ -3,7 +3,7 @@ from typing import Any
 import pytest
 from pydantic import ValidationError
 
-from app.domain.aggregates.podcast import Artwork, Explicitness, Podcast
+from app.domain.podcast.aggregate import Artwork, Explicitness, Podcast
 from app.infrastructure.providers.itunes_provider.mapper.itunes_mapper import (
     ITunesMapper,
 )

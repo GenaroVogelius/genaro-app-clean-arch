@@ -5,9 +5,9 @@ from typing import cast
 from PIL import Image, UnidentifiedImageError
 
 from app.config.settings import Settings
-from app.domain.aggregates.podcast import PaletteColor
-from app.domain.exceptions import ArtworkUnavailableError
+from app.domain.ingestion import ArtworkUnavailableError
 from app.domain.interfaces.services import ColorPaletteExtractorInterface
+from app.domain.podcast.aggregate import PaletteColor
 
 # Images are shrunk to at most this size before quantizing; plenty for a palette.
 THUMBNAIL_SIZE = (150, 150)

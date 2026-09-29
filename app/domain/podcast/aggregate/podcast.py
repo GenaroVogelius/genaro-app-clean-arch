@@ -2,8 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, HttpUrl
 
-from app.domain.aggregates.podcast.artwork import Artwork
-from app.domain.aggregates.podcast.podcast_enums import Explicitness
+from app.domain.podcast.aggregate.artwork import Artwork
+from app.domain.podcast.aggregate.podcast_enums import Explicitness
 
 
 class Podcast(BaseModel):

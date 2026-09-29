@@ -1,22 +1,20 @@
 import pytest
 
-from app.domain.aggregates.podcast import Artwork, PaletteColor, Podcast
-from app.domain.exceptions import (
-    ArtworkUnavailableError,
-    NotAPodcastError,
-    PodcastNotFoundError,
-    PodcastPersistenceError,
-)
+from app.domain.common import Status, StatusType
+from app.domain.ingestion import ArtworkUnavailableError, PodcastArtworkResolver
 from app.domain.interfaces.logger import LoggerInterface
 from app.domain.interfaces.providers.artwork import ArtworkDownloaderInterface
 from app.domain.interfaces.providers.podcasts import PodcastLookupProviderInterface
 from app.domain.interfaces.repositories.podcasts import PodcastsRepositoryInterface
 from app.domain.interfaces.services import ColorPaletteExtractorInterface
 from app.domain.interfaces.storage import ArtworkStorageInterface
-from app.domain.services.podcast_artwork import PodcastArtworkResolver
-from app.domain.simple_entities.podcast_list_criteria import PodcastListCriteria
-from app.domain.simple_entities.podcast_page import PodcastPage
-from app.domain.simple_entities.status import Status, StatusType
+from app.domain.podcast.aggregate import Artwork, PaletteColor, Podcast
+from app.domain.podcast.exceptions import (
+    NotAPodcastError,
+    PodcastNotFoundError,
+    PodcastPersistenceError,
+)
+from app.domain.podcast.queries import PodcastListCriteria, PodcastPage
 from app.domain.use_cases.podcast.ingest_podcast.ingest_podcast_use_case import (
     IngestPodcastUseCase,
 )

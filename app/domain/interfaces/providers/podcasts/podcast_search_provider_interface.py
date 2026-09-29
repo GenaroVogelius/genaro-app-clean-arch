@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 
-from app.domain.simple_entities.podcast_search_criteria import PodcastSearchCriteria
-from app.domain.simple_entities.podcast_search_result import PodcastSearchResult
+from app.domain.podcast.queries import PodcastSearchCriteria, PodcastSearchResult
 
 
 class PodcastSearchProviderInterface(ABC):

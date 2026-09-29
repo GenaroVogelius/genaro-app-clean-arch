@@ -1,6 +1,6 @@
 from datetime import UTC, datetime
 
-from app.domain.aggregates.podcast import Artwork, Podcast
+from app.domain.podcast.aggregate import Artwork, Podcast
 from app.infrastructure.db.mongo.repositories.podcasts_repository.podcast_document import (  # noqa: E501
     ArtworkEmbedded,
     PaletteColorEmbedded,

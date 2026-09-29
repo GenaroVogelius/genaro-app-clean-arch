@@ -1,4 +1,4 @@
-from app.domain.aggregates.podcast import Explicitness, Podcast
+from app.domain.podcast.aggregate import Explicitness, Podcast
 from app.infrastructure.mapper.global_mapper import GlobalMapper, maps
 from app.infrastructure.providers.itunes_provider.responses import (
     ITunesResultResponse,

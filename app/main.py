@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.config.settings import Settings
-from app.domain.enums.enums import DatabaseTypes
+from app.domain.common import DatabaseTypes
 from app.infrastructure.api.podcast_routes import router as podcast_router
 from app.infrastructure.api.rate_limit import build_limiter, setup_rate_limiting
 from app.infrastructure.db.main import (
